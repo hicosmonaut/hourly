@@ -1,8 +1,8 @@
-package hi.yo.hour.activity.main
+package hi.cosmonaut.hourly.activity.main
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import hi.yo.hour.R
+import androidx.appcompat.app.AppCompatActivity
+import hi.cosmonaut.hourly.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

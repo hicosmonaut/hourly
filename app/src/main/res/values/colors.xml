@@ -7,4 +7,17 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="green">#29B300</color>
+    <color name="red">#FF3C3C</color>
+    <color name="grey">#494949</color>
+    <color name="grey_0002">#ACACAC</color>
+
+
+    <color name="text_black">@color/black</color>
+
+    <color name="main_background_button">@color/white</color>
+    <color name="main_background_button_enabled_border">@color/green</color>
+    <color name="main_background_button_disabled_border">@color/red</color>
+    <color name="main_background_button_disable">@color/white</color>
+    <color name="status_bar_icon_default_main_color">@color/grey</color>
 </resources>

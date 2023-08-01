@@ -1,4 +1,4 @@
-package hi.yo.hour
+package hi.cosmonaut.hourly
 
 import org.junit.Test
 

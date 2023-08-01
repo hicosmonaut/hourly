@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">Yo Hour</string>
+    <string name="app_name">Hourly</string>
+    <string name="label_on">On</string>
+    <string name="label_enable_capitalized">Enable</string>
+    <string name="label_enable">enable</string>
+    <string name="label_disable">disable</string>
+    <string name="label_disable_capitalized">Disable</string>
+    <string name="label_disabled_with_smile">disabled :|</string>
+    <string name="label_enabled_with_smile">enabled :*</string>
+    <string name="data_current_time_is">Current time: %s</string>
+    <string name="chime_time">Chime time</string>
+    <string name="label_ring_ring">Ring-ring!</string>
+    <string name="next_alarm_at">Next alarm at: %s</string>
+    <string name="label_start_time">Start time</string>
+    <string name="label_end_time">End time</string>
+    <string name="label_hours">Hour</string>
+    <string name="label_apply">Apply</string>
+    <string name="label_reset">Reset</string>
+    <string name="label_about">About</string>
+    <string name="label_about_underline">&lt;u>About&lt;/u></string>
+    <string name="label_cancel_all">Cancel all</string>
+    <string name="label_HH_mm" translatable="false">%1$02d:%2$02d</string>
+    <string name="label_set_time">You will be notified every hour. Select range of time:</string>
+    <string name="label_error_end_less_then_start">\'End time\' is less then \'Start time\'</string>
 </resources>

@@ -1,4 +1,4 @@
-package hi.yo.hour
+package hi.cosmonaut.hourly
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
