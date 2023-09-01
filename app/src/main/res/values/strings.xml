@@ -13,6 +13,7 @@
     <string name="next_alarm_at">Next alarm at: %s</string>
     <string name="label_start_time">Start time</string>
     <string name="label_end_time">End time</string>
+    <string name="label_got_it">Got it!</string>
     <string name="label_hours">Hour</string>
     <string name="label_apply">Apply</string>
     <string name="label_reset">Reset</string>

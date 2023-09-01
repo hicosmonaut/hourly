@@ -48,7 +48,6 @@ import java.util.*
 class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "onReceive: ${intent.action}")
 
         val vibration = FiredHourVibration(context)
         val prefs = AppPreferences(context)
@@ -87,7 +86,7 @@ class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
                 channelName,
                 NotificationManager.IMPORTANCE_HIGH
             )
-            notificationChannel.description = "Remind Push Notification"
+            notificationChannel.description = "Hour"
 
             notificationManagerCompat.createNotificationChannel(notificationChannel)
         }
@@ -105,7 +104,15 @@ class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentTitle(title)
             .setContentText(content)
-            .setContentIntent(
+            .setDefaults(android.app.Notification.DEFAULT_ALL)
+            .setAutoCancel(true)
+            .setTimeoutAfter(60 * 1000L)
+            .setOnlyAlertOnce(false)
+            .setOngoing(false)
+            .setLocalOnly(true)
+            .addAction(
+                R.drawable.empty,
+                context.getString(R.string.label_got_it),
                 PendingIntent.getActivity(
                     context,
                     1000,
@@ -113,12 +120,6 @@ class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
             )
-            .setDefaults(android.app.Notification.DEFAULT_ALL)
-            .setAutoCancel(true)
-            .setTimeoutAfter(60 * 1000L)
-            .setOnlyAlertOnce(false)
-            .setOngoing(false)
-            .setLocalOnly(true)
             .setCustomHeadsUpContentView(
                 RemoteViews(
                     context.packageName,
