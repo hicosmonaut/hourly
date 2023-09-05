@@ -27,21 +27,30 @@ package hi.cosmonaut.hourly.picker.start
 import android.view.View
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.timepicker.MaterialTimePicker
-import hi.cosmonaut.hourly.store.local.Preferences
+import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class OnStartTimePickerPositiveClickListener(
     private val fragmentManager: FragmentManager,
     private val tag: String,
-    private val prefs: Preferences,
+    private val scope: CoroutineScope,
 ) : View.OnClickListener {
     override fun onClick(v: View?) {
         if (!fragmentManager.isDestroyed) {
             val unsafePicker = (fragmentManager.findFragmentByTag(tag)) as? MaterialTimePicker
             unsafePicker?.let { picker ->
-                prefs.startTimeHour = picker.hour
-                prefs.startTimeMinute = picker.minute
+                v?.let { view ->
+                    scope.launch {
+                        view.context.userDataStore.updateData { prefs ->
+                            prefs.toBuilder()
+                                .setStartHours(picker.hour)
+                                .setStartMinutes(picker.minute)
+                                .build()
+                        }
+                    }
+                }
             }
         }
     }
-
 }

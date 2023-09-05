@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Denis Kholodenin, hi.cosmonaut@gmail.com
+ * Copyright (c) 2022 Denis Kholodenin, hi.cosmonaut@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,23 +22,34 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home
+package hi.cosmonaut.hourly.intent.view
 
-import android.app.Application
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
+import android.net.Uri
+import androidx.test.InstrumentationRegistry
+import hi.cosmonaut.hourly.R
+import hi.cosmonaut.hourly.matcher.mapping.IsMappingOutputEqual.isMappingOutputEqual
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
 
-class HomeViewModelFactory(
-    private val app: Application
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModel = if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            HomeViewModel(app, app.userDataStore) as T
-        } else {
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
+class ToViewIntentMappingTest {
 
-        return viewModel
+    @Test
+    fun checkIfToViewIntentMappingOutputIsEqual() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext!!
+        val input = R.string.url_about
+
+        assertThat(
+            ToViewIntentMapping(context),
+            isMappingOutputEqual(
+                input,
+                ViewIntent(
+                    Uri.parse(
+                        context.getString(
+                            input
+                        )
+                    )
+                )
+            )
+        )
     }
 }

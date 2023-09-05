@@ -29,18 +29,22 @@ import android.view.View
 import hi.cosmonaut.hourly.alarm.calendar.ToNextCalendarMapping
 import hi.cosmonaut.hourly.store.local.ToAppPreferencesMapping
 import hi.cosmonaut.hourly.alarm.clock.NextAlarmClock
+import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class OnApplyClickListener(
-    private val toAppPreferencesMapping: ToAppPreferencesMapping,
+    private val scope: CoroutineScope,
     private val toNextCalendarMapping: ToNextCalendarMapping,
     private val nextAlarmClock: NextAlarmClock,
 ) : View.OnClickListener {
 
     constructor(
-        context: Context
+        context: Context,
+        scope: CoroutineScope
     ): this (
-        ToAppPreferencesMapping(),
-        ToNextCalendarMapping(),
+        scope,
+        ToNextCalendarMapping(scope),
         NextAlarmClock(
             context
         ),
@@ -48,13 +52,13 @@ class OnApplyClickListener(
 
     override fun onClick(v: View?) {
         v?.let { view ->
-            nextAlarmClock.schedule(
-                toNextCalendarMapping.perform(
-                    toAppPreferencesMapping.perform(
-                        view.context
-                    )
-                ).timeInMillis
-            )
+            scope.launch {
+                nextAlarmClock.schedule(
+                    toNextCalendarMapping.applyTo(
+                        view.context.userDataStore
+                    ).timeInMillis
+                )
+            }
         }
     }
 

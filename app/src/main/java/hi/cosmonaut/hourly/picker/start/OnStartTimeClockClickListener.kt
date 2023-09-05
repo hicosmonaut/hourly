@@ -24,48 +24,44 @@
 
 package hi.cosmonaut.hourly.picker.start
 
-import android.content.Context
 import android.view.View
+import androidx.datastore.core.DataStore
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.timepicker.MaterialTimePicker
-import hi.cosmonaut.hourly.store.local.AppPreferences
-import hi.cosmonaut.hourly.store.local.Preferences
-import hi.cosmonaut.hourly.tool.mapping.Mapping
+import hi.cosmonaut.hourly.proto.UserPreferences
+import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
+import hi.cosmonaut.hourly.tool.mapping.SuspendMapping
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class OnStartTimeClockClickListener(
     private val fragmentManager: FragmentManager,
     private val tag: String,
-    private val prefs: Preferences,
-    private val toStartTimePickerMapping: Mapping<Preferences, MaterialTimePicker>,
+    private val scope: CoroutineScope,
+    private val toStartTimePickerMapping: SuspendMapping<DataStore<UserPreferences>, MaterialTimePicker>,
 ) : View.OnClickListener {
 
     constructor(
-        context: Context,
         fragmentManager: FragmentManager,
         tag: String,
+        scope: CoroutineScope
     ) : this(
         fragmentManager,
         tag,
-        AppPreferences(context),
-    )
-
-    constructor(
-        fragmentManager: FragmentManager,
-        tag: String,
-        prefs: Preferences,
-    ) : this(
-        fragmentManager,
-        tag,
-        prefs,
+        scope,
         ToStartTimePickerMapping(
             fragmentManager,
-            tag
-        )
+            tag,
+            scope
+        ),
     )
 
-    override fun onClick(v: View?) {
-        val picker = toStartTimePickerMapping.perform(prefs)
-        picker.show(fragmentManager, tag)
+    override fun onClick(v: View) {
+        scope.launch {
+            val dataStore = v.context.userDataStore
+            val picker = toStartTimePickerMapping.applyTo(dataStore)
+            picker.show(fragmentManager, tag)
+        }
     }
 
 }

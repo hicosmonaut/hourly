@@ -37,18 +37,6 @@ class AppPreferences private constructor(
         context.getSharedPreferences(context.packageName + ".prefs", Context.MODE_PRIVATE)
     )
 
-    override fun contains(key: String): Boolean = prefs.contains(key)
-
-    override fun remove(key: String) = prefs.edit().remove(key).apply()
-
-    override fun remove(vararg keys: String) {
-        val editor = prefs.edit()
-        keys.forEach {
-            editor.remove(it)
-        }
-        editor.apply()
-    }
-
     override var alarmEnabled: Boolean
         get() = prefs.getBoolean("alarmEnabled", false)
         set(value) = prefs.edit().putBoolean("alarmEnabled", value).apply()
@@ -64,12 +52,4 @@ class AppPreferences private constructor(
     override var endTimeMinute: Int
         get() = prefs.getInt("endTimeMinute", 0)
         set(value) = prefs.edit().putInt("endTimeMinute", value).apply()
-
-    override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-    }
-
-    override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-        prefs.unregisterOnSharedPreferenceChangeListener(listener)
-    }
 }

@@ -24,36 +24,46 @@
 
 package hi.cosmonaut.hourly.fragment.home.ui
 
+import androidx.datastore.core.DataStore
 import hi.cosmonaut.hourly.alarm.calendar.ToNextCalendarMapping
-import hi.cosmonaut.hourly.store.local.Preferences
-import hi.cosmonaut.hourly.tool.mapping.Mapping
+import hi.cosmonaut.hourly.proto.UserPreferences
+import hi.cosmonaut.hourly.tool.mapping.SuspendMapping
+import kotlinx.coroutines.CoroutineScope
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
 class ToNextAlarmTimeAsStringMapping(
     private val dateFormat: DateFormat,
-    private val mapping: Mapping<Preferences, Calendar>,
-) : Mapping<Preferences, String> {
+    private val mapping: SuspendMapping<DataStore<UserPreferences>, Calendar>,
+) : SuspendMapping<DataStore<UserPreferences>, String> {
 
-    constructor() : this(
+    constructor(
+        scope: CoroutineScope
+    ) : this(
+        scope,
         "HH:mm"
     )
 
     constructor(
+        scope: CoroutineScope,
         pattern: String,
     ) : this(
+        scope,
         SimpleDateFormat(pattern)
     )
 
     constructor(
+        scope: CoroutineScope,
         dateFormat: DateFormat,
     ) : this(
         dateFormat,
-        ToNextCalendarMapping()
+        ToNextCalendarMapping(scope)
     )
 
-    override fun perform(input: Preferences?): String = dateFormat.format(
-        mapping.perform(input).timeInMillis
-    )
+    override suspend fun applyTo(input: DataStore<UserPreferences>): String {
+        return dateFormat.format(
+            mapping.applyTo(input).timeInMillis
+        )
+    }
 }

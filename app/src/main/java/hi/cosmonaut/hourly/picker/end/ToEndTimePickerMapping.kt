@@ -24,48 +24,60 @@
 
 package hi.cosmonaut.hourly.picker.end
 
+import androidx.datastore.core.DataStore
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import hi.cosmonaut.hourly.R
-import hi.cosmonaut.hourly.store.local.Preferences
-import hi.cosmonaut.hourly.tool.mapping.Mapping
+import hi.cosmonaut.hourly.proto.UserPreferences
+import hi.cosmonaut.hourly.tool.mapping.SuspendMapping
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class ToEndTimePickerMapping private constructor(
     private val cache: HashMap<String, MaterialTimePicker>,
-    private val mapping: Mapping<Preferences, MaterialTimePicker>,
-) : Mapping<Preferences, MaterialTimePicker> {
+    private val mapping: SuspendMapping<Flow<UserPreferences>, MaterialTimePicker>,
+) : SuspendMapping<DataStore<UserPreferences>, MaterialTimePicker> {
 
     constructor(
         fragmentManager: FragmentManager,
         tag: String,
+        scope: CoroutineScope,
     ) : this(
         hashMapOf(),
-        Mapping { prefs ->
-            val picker = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(prefs.endTimeHour)
-                .setMinute(prefs.endTimeMinute)
-                .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
-                .setTitleText(R.string.label_end_time)
-                .build()
+        object : SuspendMapping<Flow<UserPreferences>, MaterialTimePicker> {
+            override suspend fun applyTo(input: Flow<UserPreferences>): MaterialTimePicker {
+                return input.map {
+                    val picker = MaterialTimePicker.Builder()
+                        .setTimeFormat(TimeFormat.CLOCK_24H)
+                        .setHour(it.endHours)
+                        .setMinute(it.endMinutes)
+                        .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
+                        .setTitleText(R.string.label_start_time)
+                        .build()
 
-            picker.addOnPositiveButtonClickListener(
-                OnEndTimePickerPositiveClickListener(
-                    fragmentManager,
-                    tag,
-                    prefs
-                )
-            )
+                    picker.addOnPositiveButtonClickListener(
+                        OnEndTimePickerPositiveClickListener(
+                            fragmentManager,
+                            tag,
+                            scope
+                        )
+                    )
 
-            picker
-
+                    picker
+                }
+                    .stateIn(scope)
+                    .value
+            }
         }
     )
 
-    override fun perform(input: Preferences?): MaterialTimePicker {
+
+    override suspend fun applyTo(input: DataStore<UserPreferences>): MaterialTimePicker {
         if (!cache.containsKey("picker")) {
-            cache["picker"] = mapping.perform(input)
+            cache["picker"] = mapping.applyTo(input.data)
         }
         return cache.getValue("picker")
     }

@@ -30,7 +30,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -39,8 +38,11 @@ import hi.cosmonaut.hourly.R
 import hi.cosmonaut.hourly.activity.main.MainActivityIntent
 import hi.cosmonaut.hourly.alarm.calendar.ToNextCalendarMapping
 import hi.cosmonaut.hourly.alarm.clock.NextAlarmClock
-import hi.cosmonaut.hourly.store.local.AppPreferences
+import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
 import hi.cosmonaut.hourly.tool.vibration.FiredHourVibration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 //import hi.yo.hour.tool.vibration.FiredHourVibration
 import java.text.SimpleDateFormat
 import java.util.*
@@ -50,10 +52,12 @@ class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val vibration = FiredHourVibration(context)
-        val prefs = AppPreferences(context)
-        val toNextCalendarMapping = ToNextCalendarMapping()
+        val prefs = context.userDataStore
+        val scope = CoroutineScope(Dispatchers.Main)
+        val toNextCalendarMapping = ToNextCalendarMapping(scope)
         val mainActivityIntent = MainActivityIntent(context)
         val nextAlarm = NextAlarmClock(context)
+        val format = SimpleDateFormat("HH:mm", Locale.getDefault())
 
         vibration.launch(
             longArrayOf(
@@ -92,48 +96,52 @@ class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
         }
 
         val title = context.getString(R.string.label_ring_ring)
-        val format1 = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val nextAlarmMillis = toNextCalendarMapping.perform(prefs)
-        val info = nextAlarmMillis.timeInMillis
-        val arg = format1.format(info)
+        scope.launch {
 
-        val content = context.getString(R.string.next_alarm_at, arg)
+            val nextAlarmMillis = toNextCalendarMapping.applyTo(prefs)
+            val info = nextAlarmMillis.timeInMillis
+            val arg = format.format(info)
 
-        val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.status_bar_icon_default)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setDefaults(android.app.Notification.DEFAULT_ALL)
-            .setAutoCancel(true)
-            .setTimeoutAfter(60 * 1000L)
-            .setOnlyAlertOnce(false)
-            .setOngoing(false)
-            .setLocalOnly(true)
-            .addAction(
-                R.drawable.empty,
-                context.getString(R.string.label_got_it),
-                PendingIntent.getActivity(
-                    context,
-                    1000,
-                    mainActivityIntent,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            val content = context.getString(R.string.next_alarm_at, arg)
+
+            val builder = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.status_bar_icon_default)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setDefaults(android.app.Notification.DEFAULT_ALL)
+                .setAutoCancel(true)
+                .setTimeoutAfter(60 * 1000L)
+                .setOnlyAlertOnce(false)
+                .setOngoing(false)
+                .setLocalOnly(true)
+                .addAction(
+                    R.drawable.empty,
+                    context.getString(R.string.label_got_it),
+                    PendingIntent.getActivity(
+                        context,
+                        1000,
+                        mainActivityIntent,
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    )
                 )
-            )
-            .setCustomHeadsUpContentView(
-                RemoteViews(
-                    context.packageName,
-                    R.layout.view_heads_up_drink_alarm
-                ).apply {
-                    this.setTextViewText(R.id.viewNotificationDrinkAlarmTvDataDescription, content)
-                    this.setTextViewText(R.id.viewNotificationDrinkAlarmTvDataTitle, title)
-                }
-            )
+                .setCustomHeadsUpContentView(
+                    RemoteViews(
+                        context.packageName,
+                        R.layout.view_heads_up_drink_alarm
+                    ).apply {
+                        this.setTextViewText(
+                            R.id.viewNotificationDrinkAlarmTvDataDescription,
+                            content
+                        )
+                        this.setTextViewText(R.id.viewNotificationDrinkAlarmTvDataTitle, title)
+                    }
+                )
 
-        val result = builder.build()
-        notificationManagerCompat.notify(111, result)
-        nextAlarm.schedule(nextAlarmMillis.timeInMillis)
-
+            val result = builder.build()
+            notificationManagerCompat.notify(111, result)
+            nextAlarm.schedule(nextAlarmMillis.timeInMillis)
+        }
     }
 
     companion object {

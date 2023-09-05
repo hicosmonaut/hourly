@@ -32,6 +32,7 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import hi.cosmonaut.hourly.R
@@ -46,7 +47,6 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment() {
 
     private var binding: FragmentHomeBinding? = null
-    private val viewModel by viewModels<HomeViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,23 +55,29 @@ class HomeFragment : Fragment() {
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         binding?.let { b ->
+            val viewModel = ViewModelProvider(
+                this,
+                HomeViewModelFactory(
+                    requireActivity().application
+                )
+            )[HomeViewModel::class.java]
 
             val context = requireContext()
 
-            b.homeBtnApply.setOnClickListener(OnApplyClickListener(context))
+            b.homeBtnApply.setOnClickListener(OnApplyClickListener(context, lifecycleScope))
             b.homeBtnCancelAll.setOnClickListener(OnCancelAllClickListener())
             b.homeEtStartTime.setOnClickListener(
                 OnStartTimeClockClickListener(
-                    context,
                     parentFragmentManager,
                     "startTimePicker",
+                    lifecycleScope
                 )
             )
             b.homeEtEndTime.setOnClickListener(
                 OnEndTimeClockClickListener(
-                    context,
                     parentFragmentManager,
                     "endTimePicker",
+                    lifecycleScope
                 )
             )
             b.homeTvAbout.apply {
@@ -89,25 +95,28 @@ class HomeFragment : Fragment() {
                 )
             }
 
+
             viewLifecycleOwner.lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.timeFlow.collect { time ->
+
                         binding?.let { b ->
                             b.homeEtEndTime.setText(
                                 getString(
                                     R.string.label_HH_mm,
-                                    time["endTimeHour"],
-                                    time["endTimeMinute"]
+                                    time.endHours,
+                                    time.endMinutes
                                 )
                             )
                             b.homeEtStartTime.setText(
                                 getString(
                                     R.string.label_HH_mm,
-                                    time["startTimeHour"],
-                                    time["startTimeMinute"]
+                                    time.startHours,
+                                    time.startMinutes
                                 )
                             )
                         }
+
                     }
                 }
             }
