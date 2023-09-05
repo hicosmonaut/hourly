@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "hi.cosmonaut.hourly.proto";
+option java_multiple_files = true;
+
+message UserPreferences {
+  int32 startHours = 1;
+  int32 startMinutes = 2;
+  int32 endHours = 3;
+  int32 endMinutes = 4;
+}

@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-android-extensions'
-
+    id 'com.google.protobuf'
 }
 
 android {
@@ -19,7 +19,7 @@ android {
 
         resValue("string", "url_about", "https://github.com/hicosmonaut/hourly")
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -48,9 +48,27 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
+    protobuf {
+        protoc {
+            artifact = "com.google.protobuf:protoc:3.24.2"
+        }
+        generateProtoTasks {
+            all().forEach { task ->
+                task.builtins {
+                    create("java") {
+                        option("lite")
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 dependencies {
+
+    implementation 'com.google.protobuf:protobuf-javalite:3.24.2'
+    implementation 'androidx.datastore:datastore:1.0.0'
 
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'androidx.appcompat:appcompat-resources:1.4.2'
@@ -77,6 +95,7 @@ dependencies {
 
     implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     testImplementation 'junit:junit:4.+'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
