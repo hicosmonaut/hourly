@@ -30,7 +30,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -98,8 +97,7 @@ class HomeFragment : Fragment() {
 
             viewLifecycleOwner.lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.timeFlow.collect { time ->
-
+                    viewModel.provideTimeFlow().collect { time ->
                         binding?.let { b ->
                             b.homeEtEndTime.setText(
                                 getString(

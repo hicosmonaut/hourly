@@ -51,5 +51,5 @@ class ToActivityResultLauncherMapping<I, O>(
         }
     )
 
-    override fun perform(input: LifecycleOwner?): ActivityResultLauncher<I> = mapping.perform(input)
+    override fun perform(input: LifecycleOwner): ActivityResultLauncher<I> = mapping.perform(input)
 }

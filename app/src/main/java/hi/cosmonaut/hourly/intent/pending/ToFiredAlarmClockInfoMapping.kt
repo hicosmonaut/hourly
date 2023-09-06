@@ -51,7 +51,7 @@ class ToFiredAlarmClockInfoMapping(
         }
     )
 
-    override fun perform(input: Long?): AlarmManager.AlarmClockInfo = mapping.perform(input)
+    override fun perform(input: Long): AlarmManager.AlarmClockInfo = mapping.perform(input)
 
 
 }

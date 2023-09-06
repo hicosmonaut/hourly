@@ -32,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 class ToNextAlarmTimeAsStringMapping(
     private val dateFormat: DateFormat,
@@ -50,7 +51,7 @@ class ToNextAlarmTimeAsStringMapping(
         pattern: String,
     ) : this(
         scope,
-        SimpleDateFormat(pattern)
+        SimpleDateFormat(pattern, Locale.getDefault())
     )
 
     constructor(

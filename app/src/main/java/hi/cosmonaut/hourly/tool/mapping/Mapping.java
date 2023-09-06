@@ -24,6 +24,8 @@
 
 package hi.cosmonaut.hourly.tool.mapping;
 
+import androidx.annotation.NonNull;
+
 public interface Mapping <I, O>{
-    O perform(I input);
+    O perform(@NonNull I input);
 }

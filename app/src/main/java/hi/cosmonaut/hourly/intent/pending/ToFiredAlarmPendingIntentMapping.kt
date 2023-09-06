@@ -51,6 +51,6 @@ class ToFiredAlarmPendingIntentMapping(
         }
     )
 
-    override fun perform(input: Context?): PendingIntent = mapping.perform(input)
+    override fun perform(input: Context): PendingIntent = mapping.perform(input)
 
 }

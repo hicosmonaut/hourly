@@ -50,5 +50,5 @@ class ToViewIntentMapping private constructor(
         }
     )
 
-    override fun perform(input: Int?): Intent = mapping.perform(input)
+    override fun perform(input: Int): Intent = mapping.perform(input)
 }

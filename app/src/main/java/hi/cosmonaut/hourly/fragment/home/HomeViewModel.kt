@@ -25,20 +25,15 @@
 package hi.cosmonaut.hourly.fragment.home
 
 import android.app.Application
-import androidx.datastore.core.DataStore
 import androidx.lifecycle.AndroidViewModel
+import hi.cosmonaut.hourly.fragment.home.repository.TimeRepository
 import hi.cosmonaut.hourly.proto.UserPreferences
 import kotlinx.coroutines.flow.Flow
 
 class HomeViewModel(
     app: Application,
-    prefs: DataStore<UserPreferences>,
-) : AndroidViewModel(app) {
-
-    val timeFlow: Flow<UserPreferences> = prefs.data
-
-    companion object {
-        private val TAG: String = HomeViewModel::class.java.simpleName
-    }
+    private val timeRepository: TimeRepository,
+) : AndroidViewModel(app), TimeFlow {
+    override suspend fun provideTimeFlow(): Flow<UserPreferences> = timeRepository.flowWithDefaultValues()
 
 }
