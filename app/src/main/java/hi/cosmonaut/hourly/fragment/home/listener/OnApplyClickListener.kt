@@ -22,37 +22,43 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.activity.main.listener
+package hi.cosmonaut.hourly.fragment.home.listener
 
+import android.content.Context
 import android.view.View
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
-import hi.cosmonaut.hourly.permission.Permission
+import hi.cosmonaut.hourly.alarm.calendar.ToNextCalendarMapping
+import hi.cosmonaut.hourly.alarm.clock.NextAlarmClock
+import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class GrantedOnClickListener(
-    private val launcher: ActivityResultLauncher<Permission>,
-    private val permission: Permission,
-    private val cache: HashMap<String, View>,
-    private val origin: View.OnClickListener,
-) : View.OnClickListener, ActivityResultCallback<Boolean> {
+class OnApplyClickListener(
+    private val scope: CoroutineScope,
+    private val toNextCalendarMapping: ToNextCalendarMapping,
+    private val nextAlarmClock: NextAlarmClock,
+) : View.OnClickListener {
+
+    constructor(
+        context: Context,
+        scope: CoroutineScope
+    ): this (
+        scope,
+        ToNextCalendarMapping(scope),
+        NextAlarmClock(
+            context
+        ),
+    )
+
     override fun onClick(v: View?) {
-        if (permission.granted()) {
-            origin.onClick(v)
-        } else {
-            v?.let { view ->
-                cache["view"] = view
-                launcher.launch(
-                    permission
+        v?.let { view ->
+            scope.launch {
+                nextAlarmClock.schedule(
+                    toNextCalendarMapping.applyTo(
+                        view.context.userDataStore
+                    ).timeInMillis
                 )
             }
         }
     }
 
-    override fun onActivityResult(result: Boolean) {
-        if(result){
-            cache["view"]?.let { v ->
-                origin.onClick(v)
-            }
-        }
-    }
 }

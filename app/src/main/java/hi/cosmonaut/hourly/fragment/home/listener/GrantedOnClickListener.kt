@@ -22,34 +22,37 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.activity.main.listener
+package hi.cosmonaut.hourly.fragment.home.listener
 
-import android.content.Context
-import android.content.Intent
 import android.view.View
-import hi.cosmonaut.hourly.intent.view.ToViewIntentMapping
-import hi.cosmonaut.hourly.tool.mapping.Mapping
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import hi.cosmonaut.hourly.permission.Permission
 
-class OnAboutClickListener(
-    private val linkStringResId: Int,
-    private val toViewIntentMapping: Mapping<Int, Intent>
-) : View.OnClickListener {
-
-    constructor(
-        context: Context,
-        linkStringResId: Int,
-    ): this(
-        linkStringResId,
-        ToViewIntentMapping(
-            context
-        )
-    )
-
+class GrantedOnClickListener(
+    private val launcher: ActivityResultLauncher<Permission>,
+    private val permission: Permission,
+    private val cache: HashMap<String, View>,
+    private val origin: View.OnClickListener,
+) : View.OnClickListener, ActivityResultCallback<Boolean> {
     override fun onClick(v: View?) {
-        v?.context?.startActivity(
-            toViewIntentMapping.perform(
-                linkStringResId
-            )
-        )
+        if (permission.granted()) {
+            origin.onClick(v)
+        } else {
+            v?.let { view ->
+                cache["view"] = view
+                launcher.launch(
+                    permission
+                )
+            }
+        }
+    }
+
+    override fun onActivityResult(result: Boolean) {
+        if(result){
+            cache["view"]?.let { v ->
+                origin.onClick(v)
+            }
+        }
     }
 }

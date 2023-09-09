@@ -22,43 +22,34 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.activity.main.listener
+package hi.cosmonaut.hourly.fragment.home.listener
 
 import android.content.Context
+import android.content.Intent
 import android.view.View
-import hi.cosmonaut.hourly.alarm.calendar.ToNextCalendarMapping
-import hi.cosmonaut.hourly.alarm.clock.NextAlarmClock
-import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import hi.cosmonaut.hourly.intent.view.ToViewIntentMapping
+import hi.cosmonaut.hourly.tool.mapping.Mapping
 
-class OnApplyClickListener(
-    private val scope: CoroutineScope,
-    private val toNextCalendarMapping: ToNextCalendarMapping,
-    private val nextAlarmClock: NextAlarmClock,
+class OnAboutClickListener(
+    private val linkStringResId: Int,
+    private val toViewIntentMapping: Mapping<Int, Intent>
 ) : View.OnClickListener {
 
     constructor(
         context: Context,
-        scope: CoroutineScope
-    ): this (
-        scope,
-        ToNextCalendarMapping(scope),
-        NextAlarmClock(
+        linkStringResId: Int,
+    ): this(
+        linkStringResId,
+        ToViewIntentMapping(
             context
-        ),
+        )
     )
 
     override fun onClick(v: View?) {
-        v?.let { view ->
-            scope.launch {
-                nextAlarmClock.schedule(
-                    toNextCalendarMapping.applyTo(
-                        view.context.userDataStore
-                    ).timeInMillis
-                )
-            }
-        }
+        v?.context?.startActivity(
+            toViewIntentMapping.perform(
+                linkStringResId
+            )
+        )
     }
-
 }

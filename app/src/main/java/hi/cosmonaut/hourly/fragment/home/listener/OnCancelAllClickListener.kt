@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.activity.main.listener
+package hi.cosmonaut.hourly.fragment.home.listener
 
 import android.app.AlarmManager
 import android.app.PendingIntent
