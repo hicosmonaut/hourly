@@ -35,10 +35,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import hi.cosmonaut.hourly.R
-import hi.cosmonaut.hourly.activity.main.listener.OnAboutClickListener
-import hi.cosmonaut.hourly.activity.main.listener.OnApplyClickListener
-import hi.cosmonaut.hourly.activity.main.listener.OnCancelAllClickListener
+import hi.cosmonaut.hourly.fragment.home.listener.OnAboutClickListener
+import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClickListener
+import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClickListener
 import hi.cosmonaut.hourly.databinding.FragmentHomeBinding
+import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
+import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
 import hi.cosmonaut.hourly.picker.end.OnEndTimeClockClickListener
 import hi.cosmonaut.hourly.picker.start.OnStartTimeClockClickListener
 import kotlinx.coroutines.launch
@@ -93,7 +95,6 @@ class HomeFragment : Fragment() {
                     )
                 )
             }
-
 
             viewLifecycleOwner.lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {

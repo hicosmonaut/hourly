@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home
+package hi.cosmonaut.hourly.fragment.home.vm
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

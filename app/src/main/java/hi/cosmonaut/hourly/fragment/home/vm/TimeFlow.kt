@@ -1,4 +1,4 @@
-package hi.cosmonaut.hourly.fragment.home
+package hi.cosmonaut.hourly.fragment.home.vm
 
 import hi.cosmonaut.hourly.proto.UserPreferences
 import kotlinx.coroutines.flow.Flow
