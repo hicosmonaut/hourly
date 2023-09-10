@@ -24,10 +24,13 @@
 
 package hi.cosmonaut.hourly.fragment.home
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.addCallback
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -43,6 +46,7 @@ import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
 import hi.cosmonaut.hourly.picker.end.OnEndTimeClockClickListener
 import hi.cosmonaut.hourly.picker.start.OnStartTimeClockClickListener
+import hi.cosmonaut.hourly.tool.back.LocalOnBackPressedCallback
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -54,6 +58,9 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
+        setOnBackPressedCallback {
+            //ignore
+        }
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         binding?.let { b ->
             val viewModel = ViewModelProvider(
@@ -128,4 +135,19 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         binding = null
     }
+
+    private fun setOnBackPressedCallback(callback: LocalOnBackPressedCallback){
+        activity?.let { a ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                a.onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT){
+                    callback.onBackInvoked()
+                }
+            } else {
+                a.onBackPressedDispatcher.addCallback(viewLifecycleOwner, true) {
+                    callback.onBackInvoked()
+                }
+            }
+        }
+    }
+
 }
