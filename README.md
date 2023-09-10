@@ -7,9 +7,9 @@ I use this application to know when the new hour is beginning, something like Ca
 # Hourly (In progress)
 Application for sending hourly notification/signal/chime to notify user when the new hour is beginning
 
-### Future improvements
+### Future improvements:
   - add design
-  - add splash screen with animated logo
+  - ~~add splash screen with animated logo~~ (added 10.09.2023)
   - add settings screen to control vibration
   - add sound
   - add Android 13 support (notification permission, alarm permission)
