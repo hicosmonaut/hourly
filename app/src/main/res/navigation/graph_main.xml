@@ -2,11 +2,18 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/graph_main"
-    app:startDestination="@id/navigation_home">
+    app:startDestination="@id/navigation_splash">
+
+    <fragment
+        android:id="@+id/navigation_splash"
+        android:name="hi.cosmonaut.hourly.fragment.splash.SplashFragment" />
+
+    <action
+        android:id="@+id/navigate_to_home"
+        app:destination="@id/navigation_home" />
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="hi.cosmonaut.hourly.fragment.home.HomeFragment"
-        />
+        android:name="hi.cosmonaut.hourly.fragment.home.HomeFragment" />
 
 </navigation>
