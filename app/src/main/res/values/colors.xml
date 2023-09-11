@@ -7,17 +7,41 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="white_001">#FFFBFE</color>
     <color name="green">#29B300</color>
     <color name="red">#FF3C3C</color>
     <color name="grey">#494949</color>
     <color name="grey_0002">#ACACAC</color>
 
-
     <color name="text_black">@color/black</color>
 
-    <color name="main_background_button">@color/white</color>
+    <color name="status_bar_color_main">@color/white_001</color>
+    <color name="main_background_button">@color/white_001</color>
     <color name="main_background_button_enabled_border">@color/green</color>
     <color name="main_background_button_disabled_border">@color/red</color>
     <color name="main_background_button_disable">@color/white</color>
     <color name="status_bar_icon_default_main_color">@color/grey</color>
+
+    <color name="colorPrimary">#9b4426</color>
+    <color name="colorOnPrimary">#ffffff</color>
+    <color name="colorPrimaryContainer">#ffdbd0</color>
+    <color name="colorOnPrimaryContainer">#390c00</color>
+    <color name="colorSecondary">#77574d</color>
+    <color name="colorOnSecondary">#ffffff</color>
+    <color name="colorSecondaryContainer">#ffdbd0</color>
+    <color name="colorOnSecondaryContainer">#2c160e</color>
+    <color name="colorTertiary">#6a5e2f</color>
+    <color name="colorOnTertiary">#ffffff</color>
+    <color name="colorTertiaryContainer">#f3e2a7</color>
+    <color name="colorOnTertiaryContainer">#221b00</color>
+    <color name="colorError">#ba1a1a</color>
+    <color name="colorOnError">#ffffff</color>
+    <color name="colorErrorContainer">#ffdad6</color>
+    <color name="colorOnErrorContainer">#410002</color>
+    <color name="colorBackground">#fffbff</color>
+    <color name="colorOnBackground">#201a18</color>
+    <color name="colorAccent">#fff</color>
+    <color name="colorPrimaryDark">#fff</color>
+
+
 </resources>
