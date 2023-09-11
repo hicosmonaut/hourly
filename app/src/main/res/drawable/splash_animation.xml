@@ -44,7 +44,7 @@
                     android:propertyName="translateX"
                     android:duration="450"
                     android:valueFrom="278"
-                    android:valueTo="0"
+                    android:valueTo="42"
                     android:valueType="floatType"
                     android:interpolator="@android:anim/overshoot_interpolator"/>
                 <objectAnimator
@@ -70,6 +70,14 @@
                     android:valueTo="0"
                     android:valueType="floatType"
                     android:interpolator="@android:anim/overshoot_interpolator"/>
+                <objectAnimator
+                    android:propertyName="translateX"
+                    android:startOffset="500"
+                    android:duration="125"
+                    android:valueFrom="42"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
         </aapt:attr>
     </target>
@@ -77,8 +85,8 @@
         <aapt:attr name="android:animation">
             <objectAnimator
                 android:propertyName="fillAlpha"
-                android:startOffset="625"
-                android:duration="625"
+                android:startOffset="650"
+                android:duration="600"
                 android:valueFrom="0"
                 android:valueTo="1"
                 android:valueType="floatType"
