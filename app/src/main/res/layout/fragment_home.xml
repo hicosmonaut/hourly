@@ -6,126 +6,140 @@
     android:layout_height="match_parent"
     android:paddingVertical="16dp">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/homeLlContainerStartTime"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/homeCvCompose"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp"
+        android:layout_marginVertical="8dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_set_time"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/homeTiStartTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:enabled="true"
-            android:hint="@string/label_start_time"
-            app:errorEnabled="true"
-            app:endIconDrawable="@drawable/icon_time"
-            app:endIconMode="custom"
-            app:startIconDrawable="@drawable/icon_sun">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/homeEtStartTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="time"
-                android:maxLength="5"
-                android:focusable="false"
-                android:clickable="true"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/homeTiEndTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:enabled="true"
-            android:hint="@string/label_end_time"
-            app:endIconDrawable="@drawable/icon_time"
-            app:endIconMode="custom"
-            app:startIconDrawable="@drawable/icon_moon">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/homeEtEndTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="time"
-                android:maxLength="5"
-                android:focusable="false"
-                android:clickable="true"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/homeCvTimeRange"
+        style="?attr/materialCardViewFilledStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:layout_marginHorizontal="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/homeCvCompose"
+        >
 
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/homeLlContainerStartTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/homeBtnCancelAll"
-                style="@style/Widget.Material3.Button.TextButton.Icon"
-                android:layout_width="0dp"
-                android:layout_height="54dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
-                android:text="@string/label_cancel_all"
-                android:textSize="16sp"
-                app:elevation="4dp"
-                app:icon="@drawable/icon_close"
-                app:iconGravity="textStart" />
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_set_time"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="match_parent" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/homeTiStartTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:enabled="true"
+                android:focusable="true"
+                android:hint="@string/label_start_time"
+                app:endIconDrawable="@drawable/icon_time"
+                app:endIconMode="custom"
+                app:errorEnabled="true"
+                app:startIconDrawable="@drawable/icon_sun">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/homeBtnApply"
-                style="@style/Widget.Material3.Button.Icon"
-                android:layout_width="0dp"
-                android:layout_height="54dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
-                android:text="@string/label_apply"
-                android:textSize="16sp"
-                app:elevation="4dp"
-                app:icon="@drawable/icon_done"
-                app:iconGravity="textStart" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/homeEtStartTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:inputType="time"
+                    android:maxLength="5" />
 
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/homeTiEndTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:enabled="true"
+                android:focusable="true"
+                android:hint="@string/label_end_time"
+                app:endIconDrawable="@drawable/icon_time"
+                app:endIconMode="custom"
+                app:startIconDrawable="@drawable/icon_moon">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/homeEtEndTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:inputType="time"
+                    android:maxLength="5" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_marginVertical="12dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/homeBtnCancelAll"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:text="@string/label_cancel_all"
+                    android:textSize="16sp"
+                    app:elevation="4dp"
+                    app:iconGravity="textStart" />
+
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="match_parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/homeBtnApply"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:text="@string/label_apply"
+                    android:textSize="16sp"
+                    app:elevation="4dp"
+                    app:iconGravity="textStart" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </com.google.android.material.card.MaterialCardView>
+
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/homeTvNextAlarmAt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="@string/next_alarm_at"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:gravity="center"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/homeLlContainerStartTime"
         app:layout_constraintBottom_toBottomOf="@+id/homeTvAbout"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/homeCvTimeRange" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/homeTvAbout"
@@ -138,7 +152,6 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
