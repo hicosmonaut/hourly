@@ -21,7 +21,8 @@
     <string name="label_about_underline">&lt;u>About&lt;/u></string>
     <string name="label_cancel_all">Cancel all</string>
     <string name="label_HH_mm" translatable="false">%1$02d:%2$02d</string>
-    <string name="label_set_time">You will be notified every hour. Select range of time:</string>
+    <string name="label_set_time">Select range of time:</string>
+    <string name="text_notification_info">You will be notified every hour.</string>
     <string name="label_error_end_less_then_start">\'End time\' is less then \'Start time\'</string>
     <string name="desc_splash_animation">Splash animation</string>
 </resources>

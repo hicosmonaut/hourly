@@ -31,6 +31,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.addCallback
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -42,6 +46,7 @@ import hi.cosmonaut.hourly.fragment.home.listener.OnAboutClickListener
 import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClickListener
 import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClickListener
 import hi.cosmonaut.hourly.databinding.FragmentHomeBinding
+import hi.cosmonaut.hourly.fragment.home.ui.compose.Home
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
 import hi.cosmonaut.hourly.picker.end.OnEndTimeClockClickListener
@@ -72,6 +77,18 @@ class HomeFragment : Fragment() {
 
             val context = requireContext()
 
+            b.homeCvCompose.apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    Home.NoticeCard(
+                        iconPainter = painterResource(id = R.drawable.icon_alert),
+                        text = stringResource(id = R.string.text_notification_info),
+                        containerColor = colorResource(id = R.color.colorTertiaryContainer),
+                        contentColor = colorResource(id = R.color.colorOnTertiaryContainer),
+                    )
+                }
+            }
+            
             b.homeBtnApply.setOnClickListener(OnApplyClickListener(context, lifecycleScope))
             b.homeBtnCancelAll.setOnClickListener(OnCancelAllClickListener())
             b.homeEtStartTime.setOnClickListener(
