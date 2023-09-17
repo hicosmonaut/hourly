@@ -24,144 +24,109 @@
 
 package hi.cosmonaut.hourly.fragment.home
 
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.window.OnBackInvokedDispatcher
-import androidx.activity.addCallback
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hi.cosmonaut.hourly.R
-import hi.cosmonaut.hourly.fragment.home.listener.OnAboutClickListener
-import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClickListener
-import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClickListener
-import hi.cosmonaut.hourly.databinding.FragmentHomeBinding
 import hi.cosmonaut.hourly.fragment.home.ui.compose.Home
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
-import hi.cosmonaut.hourly.picker.end.OnEndTimeClockClickListener
-import hi.cosmonaut.hourly.picker.start.OnStartTimeClockClickListener
-import hi.cosmonaut.hourly.tool.back.LocalOnBackPressedCallback
-import kotlinx.coroutines.launch
+import hi.cosmonaut.hourly.picker.time.TimePicker
+import hi.cosmonaut.hourly.tool.back.BackHandler
+import hi.cosmonaut.hourly.ui.theme.HourlyTheme
 
 class HomeFragment : Fragment() {
 
-    private var binding: FragmentHomeBinding? = null
+    private val viewModel by viewModels<HomeViewModel>{
+        HomeViewModelFactory(
+            requireActivity().application
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        setOnBackPressedCallback {
-            //ignore
-        }
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
-        binding?.let { b ->
-            val viewModel = ViewModelProvider(
-                this,
-                HomeViewModelFactory(
-                    requireActivity().application
-                )
-            )[HomeViewModel::class.java]
+    ): View {
 
-            val context = requireContext()
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                HourlyTheme(
+                    darkTheme = false
+                ) {
+                    BackHandler.Empty()
 
-            b.homeCvCompose.apply {
-                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                setContent {
-                    Home.NoticeCard(
-                        iconPainter = painterResource(id = R.drawable.icon_alert),
-                        text = stringResource(id = R.string.text_notification_info),
-                        containerColor = colorResource(id = R.color.colorTertiaryContainer),
-                        contentColor = colorResource(id = R.color.colorOnTertiaryContainer),
-                    )
-                }
-            }
-            
-            b.homeBtnApply.setOnClickListener(OnApplyClickListener(context, lifecycleScope))
-            b.homeBtnCancelAll.setOnClickListener(OnCancelAllClickListener())
-            b.homeEtStartTime.setOnClickListener(
-                OnStartTimeClockClickListener(
-                    parentFragmentManager,
-                    "startTimePicker",
-                    lifecycleScope
-                )
-            )
-            b.homeEtEndTime.setOnClickListener(
-                OnEndTimeClockClickListener(
-                    parentFragmentManager,
-                    "endTimePicker",
-                    lifecycleScope
-                )
-            )
-            b.homeTvAbout.apply {
-                this.text = HtmlCompat.fromHtml(
-                    this@HomeFragment.getString(
-                        R.string.label_about_underline
-                    ),
-                    HtmlCompat.FROM_HTML_MODE_LEGACY
-                )
-                this.setOnClickListener(
-                    OnAboutClickListener(
-                        requireContext(),
-                        R.string.url_about
-                    )
-                )
-            }
+                    val prefs by viewModel.timeFlow.collectAsStateWithLifecycle(lifecycleOwner = viewLifecycleOwner)
+                    val startTimePickerState = remember { mutableStateOf(false) }
+                    val endTimePickerState = remember { mutableStateOf(false) }
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.provideTimeFlow().collect { time ->
-                        binding?.let { b ->
-                            b.homeEtEndTime.setText(
-                                getString(
-                                    R.string.label_HH_mm,
-                                    time.endHours,
-                                    time.endMinutes
-                                )
-                            )
-                            b.homeEtStartTime.setText(
-                                getString(
-                                    R.string.label_HH_mm,
-                                    time.startHours,
-                                    time.startMinutes
-                                )
-                            )
-                        }
 
+
+                    if (startTimePickerState.value) {
+                        TimePicker.Dialog(
+                            title = stringResource(id = R.string.label_start_time),
+                            startTimePickerState,
+                            initialHour = prefs.startHours,
+                            initialMinute = prefs.startMinutes,
+                            onConfirmed = { hour, minute ->
+                                viewModel.updateStartTime(hour, minute)
+                            },
+                            onCancel = { }
+                        )
                     }
-                }
-            }
-        }
 
-        return binding?.root
-    }
+                    if (endTimePickerState.value) {
+                        TimePicker.Dialog(
+                            title = stringResource(id = R.string.label_end_time),
+                            endTimePickerState,
+                            initialHour = prefs.endHours,
+                            initialMinute = prefs.endMinutes,
+                            onConfirmed = { hour, minute ->
+                                viewModel.updateEndTime(hour, minute)
+                            },
+                            onCancel = {}
+                        )
+                    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
-    }
 
-    private fun setOnBackPressedCallback(callback: LocalOnBackPressedCallback){
-        activity?.let { a ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                a.onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT){
-                    callback.onBackInvoked()
-                }
-            } else {
-                a.onBackPressedDispatcher.addCallback(viewLifecycleOwner, true) {
-                    callback.onBackInvoked()
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        Home.NoticeCard(
+                            iconPainter = painterResource(id = R.drawable.icon_alert),
+                            text = stringResource(id = R.string.text_notification_info),
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                        Home.TimeRangeCard(
+                            prefs = prefs,
+                            startTimePickerState = startTimePickerState,
+                            endTimePickerState = endTimePickerState
+                        )
+
+                        LaunchedEffect("home") {
+                            viewModel.launch()
+                        }
+                    }
                 }
             }
         }

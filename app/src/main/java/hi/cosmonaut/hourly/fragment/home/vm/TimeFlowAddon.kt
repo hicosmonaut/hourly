@@ -22,46 +22,15 @@
  *  SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.repository
+package hi.cosmonaut.hourly.fragment.home.vm
 
-import androidx.datastore.core.DataStore
 import hi.cosmonaut.hourly.proto.UserPreferences
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.StateFlow
 
-class StoredTimeRepository(
-    private val store: DataStore<UserPreferences>
-): TimeRepository {
-    override suspend fun flowWithDefaultValues(): Flow<UserPreferences> = store.data
-        .onEach {
-            val builder = it.toBuilder()
+interface TimeFlowAddon {
+    val timeFlow: StateFlow<UserPreferences>
 
-            if (!it.defaultApplied) {
-                builder.startHours = 9
-                builder.startMinutes = 0
-                builder.endHours = 21
-                builder.endMinutes = 0
-                builder.defaultApplied = true
-            }
-
-            builder.build()
-        }
-
-    override suspend fun updateStartTime(hour: Int, minute: Int) {
-        store.updateData {
-            it.toBuilder()
-                .setStartMinutes(minute)
-                .setStartHours(hour)
-                .build()
-        }
-    }
-
-    override suspend fun updateEndTime(hour: Int, minute: Int) {
-        store.updateData {
-            it.toBuilder()
-                .setEndMinutes(minute)
-                .setEndHours(hour)
-                .build()
-        }
-    }
+    fun launch()
+    fun updateStartTime(hour: Int, minute: Int)
+    fun updateEndTime(hour: Int, minute: Int)
 }

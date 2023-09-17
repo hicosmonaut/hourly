@@ -22,13 +22,19 @@
  *  SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.repository
+package hi.cosmonaut.hourly.tool.back
 
-import hi.cosmonaut.hourly.proto.UserPreferences
-import kotlinx.coroutines.flow.Flow
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.Composable
 
-interface TimeRepository {
-    suspend fun flowWithDefaultValues(): Flow<UserPreferences>
-    suspend fun updateStartTime(hour: Int, minute: Int)
-    suspend fun updateEndTime(hour: Int, minute: Int)
+object BackHandler {
+
+    @Composable
+    fun Empty(){
+        BackHandler(
+            enabled = false
+        ) {
+
+        }
+    }
 }

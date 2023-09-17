@@ -26,27 +26,28 @@ package hi.cosmonaut.hourly.fragment.home.listener
 
 import android.content.Context
 import android.content.Intent
-import android.view.View
 import hi.cosmonaut.hourly.intent.view.ToViewIntentMapping
 import hi.cosmonaut.hourly.tool.mapping.Mapping
 
-class OnAboutClickListener(
+class OnAboutClick(
+    private val context: Context,
     private val linkStringResId: Int,
     private val toViewIntentMapping: Mapping<Int, Intent>
-) : View.OnClickListener {
+) : () -> Unit {
 
     constructor(
         context: Context,
         linkStringResId: Int,
     ): this(
+        context,
         linkStringResId,
         ToViewIntentMapping(
             context
         )
     )
 
-    override fun onClick(v: View?) {
-        v?.context?.startActivity(
+    override fun invoke() {
+        context.startActivity(
             toViewIntentMapping.perform(
                 linkStringResId
             )

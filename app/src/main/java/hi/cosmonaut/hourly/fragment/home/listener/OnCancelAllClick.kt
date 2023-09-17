@@ -27,26 +27,31 @@ package hi.cosmonaut.hourly.fragment.home.listener
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
-import android.view.View
 import hi.cosmonaut.hourly.intent.pending.ToFiredAlarmPendingIntentMapping
 import hi.cosmonaut.hourly.tool.mapping.Mapping
 
-class OnCancelAllClickListener(
-    private val toFiredAlarmPendingIntentMapping: Mapping<Context, PendingIntent>
-) : View.OnClickListener {
+class OnCancelAllClick(
+    private val context: Context,
+    private val toFiredAlarmPendingIntentMapping: Mapping<Context, PendingIntent>,
+) : () -> Unit {
 
-    constructor(): this(
+    constructor(
+        context: Context,
+    ) : this(
+        context,
         ToFiredAlarmPendingIntentMapping()
     )
 
-    override fun onClick(v: View?) {
-        v?.context?.let {
-            val alarmManager = it.applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    override fun invoke() {
+        context.let {
+            val alarmManager =
+                it.applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val firedAlarmPendingIntent = toFiredAlarmPendingIntentMapping.perform(it)
-            
+
             alarmManager.cancel(
                 firedAlarmPendingIntent
             )
         }
     }
+
 }
