@@ -44,7 +44,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hi.cosmonaut.hourly.R
-import hi.cosmonaut.hourly.fragment.home.ui.compose.Home
+import hi.cosmonaut.hourly.ui.compose.home.Home
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
 import hi.cosmonaut.hourly.picker.time.TimePicker
@@ -76,7 +76,6 @@ class HomeFragment : Fragment() {
                     val prefs by viewModel.timeFlow.collectAsStateWithLifecycle(lifecycleOwner = viewLifecycleOwner)
                     val startTimePickerState = remember { mutableStateOf(false) }
                     val endTimePickerState = remember { mutableStateOf(false) }
-
 
 
                     if (startTimePickerState.value) {

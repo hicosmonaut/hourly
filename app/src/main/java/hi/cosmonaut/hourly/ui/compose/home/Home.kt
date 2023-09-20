@@ -22,8 +22,9 @@
  *  SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.ui.compose
+package hi.cosmonaut.hourly.ui.compose.home
 
+import android.app.Application
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -48,7 +49,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -64,13 +68,84 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import hi.cosmonaut.hourly.R
 import hi.cosmonaut.hourly.fragment.home.listener.OnAboutClick
 import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClick
 import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClick
+import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
+import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
+import hi.cosmonaut.hourly.picker.time.TimePicker
 import hi.cosmonaut.hourly.proto.UserPreferences
+import hi.cosmonaut.hourly.tool.back.BackHandler
 
 object Home {
+
+    @Composable
+    fun Screen(
+        application: Application,
+        navController: NavHostController,
+        viewModel: HomeViewModel = viewModel(
+            factory = HomeViewModelFactory(application)
+        ),
+    ){
+        BackHandler.Empty()
+
+        val prefs by viewModel.timeFlow.collectAsStateWithLifecycle()
+        val startTimePickerState = remember { mutableStateOf(false) }
+        val endTimePickerState = remember { mutableStateOf(false) }
+
+        if (startTimePickerState.value) {
+            TimePicker.Dialog(
+                title = stringResource(id = R.string.label_start_time),
+                startTimePickerState,
+                initialHour = prefs.startHours,
+                initialMinute = prefs.startMinutes,
+                onConfirmed = { hour, minute ->
+                    viewModel.updateStartTime(hour, minute)
+                },
+                onCancel = { }
+            )
+        }
+
+        if (endTimePickerState.value) {
+            TimePicker.Dialog(
+                title = stringResource(id = R.string.label_end_time),
+                endTimePickerState,
+                initialHour = prefs.endHours,
+                initialMinute = prefs.endMinutes,
+                onConfirmed = { hour, minute ->
+                    viewModel.updateEndTime(hour, minute)
+                },
+                onCancel = {}
+            )
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            NoticeCard(
+                iconPainter = painterResource(id = R.drawable.icon_alert),
+                text = stringResource(id = R.string.text_notification_info),
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
+            TimeRangeCard(
+                prefs = prefs,
+                startTimePickerState = startTimePickerState,
+                endTimePickerState = endTimePickerState
+            )
+
+            LaunchedEffect("home") {
+                viewModel.launch()
+            }
+        }
+    }
 
     @Composable
     fun NoticeCard(
@@ -80,7 +155,9 @@ object Home {
         contentColor: Color,
     ) {
         Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
                 containerColor = containerColor
@@ -237,13 +314,13 @@ object Home {
         @StringRes labelResId: Int,
         @DrawableRes leadingIconResId: Int,
         @DrawableRes trailingIconResId: Int,
-        colors: TextFieldColors = OutlinedTextFieldDefaults.colors (
-        disabledBorderColor = MaterialTheme.colorScheme.outline,
-        disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
-    ),
-        onClick: () -> Unit
-    ){
+        colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        onClick: () -> Unit,
+    ) {
         OutlinedTextField(
             modifier = Modifier
                 .padding(vertical = 8.dp, horizontal = 16.dp)

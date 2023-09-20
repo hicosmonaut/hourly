@@ -25,12 +25,48 @@
 package hi.cosmonaut.hourly.activity.main
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import hi.cosmonaut.hourly.R
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import hi.cosmonaut.hourly.ui.compose.home.Home
+import hi.cosmonaut.hourly.ui.compose.splash.Splash
+import hi.cosmonaut.hourly.ui.theme.HourlyTheme
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContent{
+
+            val controller = rememberNavController()
+
+            HourlyTheme(
+                darkTheme = false
+            ) {
+                NavHost(
+                    navController = controller,
+                    startDestination = "splash"
+                ) {
+                    composable(
+                        route = "splash"
+                    ) {
+                        Splash.Screen(
+                            navController = controller
+                        )
+                    }
+                    composable(
+                        route = "home"
+                    ) {
+                        Home.Screen(
+                            application = application,
+                            navController = controller
+                        )
+                    }
+                }
+
+
+            }
+        }
     }
 }

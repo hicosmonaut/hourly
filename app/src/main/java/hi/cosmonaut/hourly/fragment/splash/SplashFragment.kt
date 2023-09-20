@@ -35,35 +35,7 @@ class SplashFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) = ComposeView(requireContext()).apply {
         setContent {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                var atEnd by remember { mutableStateOf(false) }
 
-                Image(
-                    painter = rememberAnimatedVectorPainter(
-                        animatedImageVector = AnimatedImageVector.animatedVectorResource(
-                            R.drawable.splash_animation
-                        ),
-                        atEnd = atEnd
-                    ),
-                    contentDescription = stringResource(
-                        id = R.string.desc_splash_animation
-                    ),
-                    contentScale = ContentScale.FillWidth
-                )
-
-                LaunchedEffect("splash") {
-                    delay(250)
-                    atEnd = true
-
-                    delay(1500)
-                    findNavController().navigate(
-                        GraphMainDirections.navigateToHome()
-                    )
-                }
-            }
         }
     }
 
