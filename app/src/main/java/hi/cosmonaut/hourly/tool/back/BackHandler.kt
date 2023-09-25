@@ -31,10 +31,6 @@ object BackHandler {
 
     @Composable
     fun Empty(){
-        BackHandler(
-            enabled = false
-        ) {
-
-        }
+        BackHandler { }
     }
 }
