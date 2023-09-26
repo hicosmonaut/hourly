@@ -28,9 +28,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import hi.cosmonaut.hourly.fragment.home.repository.TimeRepository
-import hi.cosmonaut.hourly.proto.UserPreferences
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -38,16 +36,9 @@ class HomeViewModel(
     private val timeRepository: TimeRepository,
 ) : AndroidViewModel(app), TimeFlowAddon {
 
-    private val _timeFlow: MutableStateFlow<UserPreferences> = MutableStateFlow(UserPreferences.getDefaultInstance())
-    override val timeFlow = _timeFlow.asStateFlow()
+    override fun startTime(): Flow<Pair<Int, Int>> = timeRepository.startTime()
 
-    override fun launch() {
-        viewModelScope.launch {
-            timeRepository.flowWithDefaultValues().collect {
-                _timeFlow.emit(it)
-            }
-        }
-    }
+    override fun endTime(): Flow<Pair<Int, Int>> = timeRepository.endTime()
 
     override fun updateStartTime(hour: Int, minute: Int) {
         viewModelScope.launch {

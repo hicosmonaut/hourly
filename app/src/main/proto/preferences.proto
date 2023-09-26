@@ -4,9 +4,10 @@ option java_package = "hi.cosmonaut.hourly.proto";
 option java_multiple_files = true;
 
 message UserPreferences {
-  bool defaultApplied = 1;
-  int32 startHours = 2;
-  int32 startMinutes = 3;
-  int32 endHours = 4;
-  int32 endMinutes = 5;
+  bool defaultStartTimeApplied = 1;
+  bool defaultEndTimeApplied = 2;
+  int32 startHours = 3;
+  int32 startMinutes = 4;
+  int32 endHours = 5;
+  int32 endMinutes = 6;
 }

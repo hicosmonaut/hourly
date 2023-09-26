@@ -44,8 +44,7 @@ class OnCancelAllClick(
 
     override fun invoke() {
         context.let {
-            val alarmManager =
-                it.applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val alarmManager = it.applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val firedAlarmPendingIntent = toFiredAlarmPendingIntentMapping.perform(it)
 
             alarmManager.cancel(

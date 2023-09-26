@@ -35,10 +35,11 @@ class HomeViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val viewModel = if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+            val dataStore = app.userDataStore
             HomeViewModel(
                 app,
                 StoredTimeRepository(
-                    app.userDataStore
+                    dataStore
                 )
             ) as T
         } else {

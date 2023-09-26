@@ -25,19 +25,35 @@
 package hi.cosmonaut.hourly.activity.main
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
+import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
+import hi.cosmonaut.hourly.tool.back.BackHandler
 import hi.cosmonaut.hourly.ui.compose.home.Home
 import hi.cosmonaut.hourly.ui.compose.splash.Splash
 import hi.cosmonaut.hourly.ui.theme.HourlyTheme
+import kotlinx.coroutines.delay
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent{
+        var i = 1
+        setContent {
 
             val controller = rememberNavController()
 
@@ -58,15 +74,39 @@ class MainActivity : AppCompatActivity() {
                     composable(
                         route = "home"
                     ) {
+
+                        BackHandler.Empty()
+
+                        val homeViewModel: HomeViewModel = viewModel(
+                            factory = HomeViewModelFactory(application)
+                        )
+
+                        val startTime by homeViewModel.startTime().collectAsStateWithLifecycle(9 to 0)
+                        val endTime by homeViewModel.endTime().collectAsStateWithLifecycle(22 to 0)
+
                         Home.Screen(
-                            application = application,
-                            navController = controller
+                            startTime,
+                            endTime,
+                            onStartTimeConfirmed = { hour, minute ->
+                                homeViewModel.updateStartTime(
+                                    hour,
+                                    minute
+                                )
+                            },
+                            onEndTimeConfirmed = { hour, minute ->
+                                homeViewModel.updateEndTime(
+                                    hour,
+                                    minute
+                                )
+                            }
                         )
                     }
                 }
-
-
             }
         }
+    }
+
+    companion object {
+        private val TAG: String = MainActivity::class.java.simpleName
     }
 }

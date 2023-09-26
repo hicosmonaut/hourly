@@ -35,10 +35,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimeInput
-import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -53,108 +56,131 @@ object TimePicker {
     @Composable
     fun Dialog(
         title: String,
-        openState: MutableState<Boolean>,
-        initialHour: Int,
-        initialMinute: Int,
-        is24Hour: Boolean = true,
-        onConfirmed: (Int, Int) -> Unit,
+        timePickerState: TimePickerState,
+        onConfirmed: () -> Unit,
         onCancel: () -> Unit,
     ) {
-        if (openState.value) {
-            AlertDialog(
+        AlertDialog(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(size = 28.dp)
+                ),
+            onDismissRequest = onCancel
+        ) {
+            Column(
                 modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(size = 28.dp)
-                    ),
-                onDismissRequest = {
-                    openState.value = false
-                    onCancel()
-                }
+                    .padding(
+                        vertical = 8.dp,
+                    )
             ) {
-                Column(
+
+                Text(
                     modifier = Modifier
+                        .align(Alignment.Start)
                         .padding(
                             vertical = 8.dp,
+                            horizontal = 32.dp
+                        ),
+                    text = title,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp
+                )
+
+                TimePicker(
+                    modifier = Modifier
+                        .padding(
+                            vertical = 8.dp
                         )
-                ) {
-
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.Start)
-                            .padding(
-                                vertical = 8.dp,
-                                horizontal = 32.dp
-                            ),
-                        text = title,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 12.sp
-                    )
-
-                    val timePickerState = rememberTimePickerState(
-                        initialHour = initialHour,
-                        initialMinute = initialMinute,
-                        is24Hour = is24Hour
-                    )
-                    // time picker
-                    TimeInput(
-                        modifier = Modifier
-                            .padding(
-                                vertical = 8.dp
-                            ).align(
+                        .align(
                             alignment = Alignment.CenterHorizontally
                         ),
-                        state = timePickerState
-                    )
+                    state = timePickerState
+                )
 
-                    // buttons
-                    Row(
+                Row(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 4.dp
+                        )
+                        .align(
+                            alignment = Alignment.End
+                        ),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
                         modifier = Modifier
                             .padding(
-                                horizontal = 4.dp
-                            )
-                            .align(
-                                alignment = Alignment.End
+                                horizontal = 8.dp
                             ),
-                        horizontalArrangement = Arrangement.End
+                        onClick = onCancel
                     ) {
-                        // dismiss button
-                        TextButton(
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 8.dp
-                                ),
-                            onClick = {
-                                openState.value = false
-                                onCancel()
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(android.R.string.cancel),
-                                textAlign = TextAlign.End
-                            )
-                        }
+                        Text(
+                            text = stringResource(android.R.string.cancel),
+                            textAlign = TextAlign.End
+                        )
+                    }
 
-                        // confirm button
-                        TextButton(
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 8.dp
-                                ),
-                            onClick = {
-                                openState.value = false
-                                onConfirmed(timePickerState.hour, timePickerState.minute)
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(android.R.string.ok),
-                            )
-                        }
+                    TextButton(
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 8.dp
+                            ),
+                        onClick = onConfirmed
+                    ) {
+                        Text(
+                            text = stringResource(android.R.string.ok),
+                        )
                     }
                 }
             }
-
         }
+    }
+
+
+    @Stable
+    class DialogState private constructor(
+        private val state: MutableState<Boolean>,
+    ) {
+
+        constructor(
+            currentState: Boolean = false,
+        ) : this(
+            mutableStateOf(currentState)
+        )
+
+        fun markAsClosed() {
+            state.value = false
+        }
+
+        fun markAsOpened() {
+            state.value = true
+        }
+
+        fun opened() = state.value
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as DialogState
+
+            if (state.value != other.state.value) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int = 38 * state.value.hashCode()
+
+
+    }
+
+    @Composable
+    fun rememberDialogState(
+        opened: Boolean = false,
+    ): DialogState = remember {
+        DialogState(
+            opened
+        )
     }
 }

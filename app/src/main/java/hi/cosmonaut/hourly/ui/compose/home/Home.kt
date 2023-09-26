@@ -24,7 +24,6 @@
 
 package hi.cosmonaut.hourly.ui.compose.home
 
-import android.app.Application
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -42,19 +41,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,60 +64,59 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import hi.cosmonaut.hourly.R
 import hi.cosmonaut.hourly.fragment.home.listener.OnAboutClick
 import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClick
 import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClick
-import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
-import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
 import hi.cosmonaut.hourly.picker.time.TimePicker
 import hi.cosmonaut.hourly.proto.UserPreferences
-import hi.cosmonaut.hourly.tool.back.BackHandler
 
 object Home {
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
-        application: Application,
-        navController: NavHostController,
-        viewModel: HomeViewModel = viewModel(
-            factory = HomeViewModelFactory(application)
-        ),
-    ){
-        BackHandler.Empty()
+        startTime: Pair<Int, Int>,
+        endTime: Pair<Int, Int>,
+        startTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(false),
+        endTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(false),
+        onStartTimeConfirmed: (Int, Int) -> Unit,
+        onEndTimeConfirmed: (Int, Int) -> Unit,
+    ) {
 
-        val prefs by viewModel.timeFlow.collectAsStateWithLifecycle()
-        val startTimePickerState = remember { mutableStateOf(false) }
-        val endTimePickerState = remember { mutableStateOf(false) }
+        val startTimePickerState = rememberTimePickerState(
+            initialHour = startTime.first,
+            initialMinute = startTime.second,
+            is24Hour = true
+        )
 
-        if (startTimePickerState.value) {
+        val endTimePickerState = rememberTimePickerState(
+            initialHour = endTime.first,
+            initialMinute = endTime.second,
+            is24Hour = true
+        )
+
+        if (startTimePickerOpenState.opened()) {
             TimePicker.Dialog(
                 title = stringResource(id = R.string.label_start_time),
-                startTimePickerState,
-                initialHour = prefs.startHours,
-                initialMinute = prefs.startMinutes,
-                onConfirmed = { hour, minute ->
-                    viewModel.updateStartTime(hour, minute)
+                timePickerState = startTimePickerState,
+                onConfirmed = {
+                    onStartTimeConfirmed(startTimePickerState.hour, startTimePickerState.minute)
+                    startTimePickerOpenState.markAsClosed()
                 },
-                onCancel = { }
+                onCancel = { startTimePickerOpenState.markAsClosed() }
             )
         }
 
-        if (endTimePickerState.value) {
+        if (endTimePickerOpenState.opened()) {
             TimePicker.Dialog(
                 title = stringResource(id = R.string.label_end_time),
-                endTimePickerState,
-                initialHour = prefs.endHours,
-                initialMinute = prefs.endMinutes,
-                onConfirmed = { hour, minute ->
-                    viewModel.updateEndTime(hour, minute)
+                timePickerState = endTimePickerState,
+                onConfirmed = {
+                    onEndTimeConfirmed(endTimePickerState.hour, endTimePickerState.minute)
+                    endTimePickerOpenState.markAsClosed()
                 },
-                onCancel = {}
+                onCancel = { endTimePickerOpenState.markAsClosed()}
             )
         }
 
@@ -136,14 +131,11 @@ object Home {
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
             )
             TimeRangeCard(
-                prefs = prefs,
-                startTimePickerState = startTimePickerState,
-                endTimePickerState = endTimePickerState
+                startTime = startTime,
+                endTime = endTime,
+                onStartTimeClick = { startTimePickerOpenState.markAsOpened() },
+                onEndTimeClick = { endTimePickerOpenState.markAsOpened() },
             )
-
-            LaunchedEffect("home") {
-                viewModel.launch()
-            }
         }
     }
 
@@ -185,13 +177,13 @@ object Home {
 
     @Composable
     fun TimeRangeCard(
-        prefs: UserPreferences,
-        startTimePickerState: MutableState<Boolean>,
-        endTimePickerState: MutableState<Boolean>
-    ){
+        startTime: Pair<Int, Int>,
+        endTime: Pair<Int, Int>,
+        onStartTimeClick: () -> Unit,
+        onEndTimeClick: () -> Unit,
+    ) {
 
         val context = LocalContext.current.applicationContext
-        val scope = rememberCoroutineScope()
 
         Card(
             modifier = Modifier
@@ -202,7 +194,7 @@ object Home {
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                containerColor = MaterialTheme.colorScheme.surface,
             )
         ) {
             Column(
@@ -228,29 +220,25 @@ object Home {
                 TimeOutlinedTextField(
                     value = stringResource(
                         R.string.label_HH_mm,
-                        prefs.startHours,
-                        prefs.startMinutes
+                        startTime.first,
+                        startTime.second
                     ),
                     labelResId = R.string.label_start_time,
                     leadingIconResId = R.drawable.icon_sun,
                     trailingIconResId = R.drawable.icon_time,
-                    onClick = {
-                        startTimePickerState.value = true
-                    }
+                    onClick = onStartTimeClick
                 )
 
                 TimeOutlinedTextField(
                     value = stringResource(
                         R.string.label_HH_mm,
-                        prefs.endHours,
-                        prefs.endMinutes
+                        endTime.first,
+                        endTime.second
                     ),
                     labelResId = R.string.label_end_time,
                     leadingIconResId = R.drawable.icon_moon,
                     trailingIconResId = R.drawable.icon_time,
-                    onClick = {
-                        endTimePickerState.value = true
-                    }
+                    onClick = onEndTimeClick
                 )
 
                 Row(
@@ -262,7 +250,7 @@ object Home {
                             .padding(
                                 horizontal = 8.dp
                             ),
-                        onClick = OnCancelAllClick(context.applicationContext)
+                        onClick = OnCancelAllClick(context)
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_cancel_all),
@@ -277,7 +265,7 @@ object Home {
                             .padding(
                                 horizontal = 8.dp
                             ),
-                        onClick = OnApplyClick(context, scope)
+                        onClick = OnApplyClick(context, startTime, endTime)
                     ) {
                         Text(
                             text = stringResource(id = R.string.label_apply),
@@ -291,12 +279,11 @@ object Home {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.BottomCenter
         ) {
-            val aboutOnClick = OnAboutClick(context, R.string.url_about)
-
             Text(
-                modifier = Modifier.clickable {
-                    aboutOnClick()
-                },
+                modifier = Modifier
+                    .clickable(
+                        onClick = OnAboutClick(context, R.string.url_about)
+                    ),
                 text = stringResource(id = R.string.label_about),
                 style = TextStyle(textDecoration = TextDecoration.Underline)
 

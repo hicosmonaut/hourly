@@ -22,13 +22,8 @@
  *  SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.repository
+package hi.cosmonaut.hourly.tool.mutation
 
-import kotlinx.coroutines.flow.Flow
-
-interface TimeRepository {
-    fun startTime(): Flow<Pair<Int, Int>>
-    fun endTime(): Flow<Pair<Int, Int>>
-    suspend fun updateStartTime(hour: Int, minute: Int)
-    suspend fun updateEndTime(hour: Int, minute: Int)
+interface SuspendMutation<M> {
+    fun perform(input: M): M
 }
