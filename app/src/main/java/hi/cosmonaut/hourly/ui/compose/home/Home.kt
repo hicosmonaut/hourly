@@ -53,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
@@ -83,6 +84,8 @@ object Home {
         onStartTimeConfirmed: (Int, Int) -> Unit,
         onEndTimeConfirmed: (Int, Int) -> Unit,
     ) {
+
+        val context = LocalContext.current.applicationContext
 
         val startTimePickerState = rememberTimePickerState(
             initialHour = startTime.first,
@@ -136,6 +139,21 @@ object Home {
                 onStartTimeClick = { startTimePickerOpenState.markAsOpened() },
                 onEndTimeClick = { endTimePickerOpenState.markAsOpened() },
             )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Text(
+                    modifier = Modifier
+                        .clickable(
+                            onClick = OnAboutClick(context, R.string.url_about)
+                        )
+                        .alpha(0.5f),
+                    text = stringResource(id = R.string.label_about),
+                    style = TextStyle(textDecoration = TextDecoration.Underline)
+
+                )
+            }
         }
     }
 
@@ -274,22 +292,6 @@ object Home {
                 }
             }
         }
-
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            Text(
-                modifier = Modifier
-                    .clickable(
-                        onClick = OnAboutClick(context, R.string.url_about)
-                    ),
-                text = stringResource(id = R.string.label_about),
-                style = TextStyle(textDecoration = TextDecoration.Underline)
-
-            )
-        }
-
     }
 
 
