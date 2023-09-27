@@ -78,8 +78,8 @@ object Home {
     fun Screen(
         startTime: Pair<Int, Int>,
         endTime: Pair<Int, Int>,
-        startTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(false),
-        endTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(false),
+        startTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(),
+        endTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(),
         onStartTimeConfirmed: (Int, Int) -> Unit,
         onEndTimeConfirmed: (Int, Int) -> Unit,
     ) {
