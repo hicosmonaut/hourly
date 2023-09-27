@@ -14,4 +14,4 @@ Application for sending hourly notification/signal/chime to notify user when the
   - add sound
   - add Android 13 support (notification permission, alarm permission)
   - add unit-tests
-  - make it in a Jetpack Compose-way (or add as new flavor)
+  - ~~make it in a Jetpack Compose-way (or add as new flavor)~~ (added 26.09.2023)
