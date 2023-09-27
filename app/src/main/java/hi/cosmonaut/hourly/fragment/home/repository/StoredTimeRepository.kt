@@ -31,16 +31,35 @@ import kotlinx.coroutines.flow.map
 
 class StoredTimeRepository(
     private val store: DataStore<UserPreferences>,
+    private val defaultTimeArray: Array<Pair<Int, Int>>
 ): TimeRepository {
+
+    constructor(
+        store: DataStore<UserPreferences>
+    ): this (
+        store,
+        arrayOf(
+            Pair(9, 0),
+            Pair(22, 0)
+        )
+    )
 
     override fun startTime(): Flow<Pair<Int, Int>> = store.data
         .map {
-            it.startHours to it.startMinutes
+            if(it.defaultStartTimeApplied) {
+                it.startHours to it.startMinutes
+            } else {
+                defaultTimeArray[0]
+            }
         }
 
     override fun endTime(): Flow<Pair<Int, Int>> = store.data
         .map {
-            it.endHours to it.endMinutes
+            if(it.defaultEndTimeApplied) {
+                it.endHours to it.endMinutes
+            } else {
+                defaultTimeArray[1]
+            }
         }
 
     override suspend fun updateStartTime(hour: Int, minute: Int) {
@@ -48,6 +67,7 @@ class StoredTimeRepository(
             it.toBuilder()
                 .setStartMinutes(minute)
                 .setStartHours(hour)
+                .setDefaultStartTimeApplied(true)
                 .build()
         }
     }
@@ -57,6 +77,7 @@ class StoredTimeRepository(
             it.toBuilder()
                 .setEndMinutes(minute)
                 .setEndHours(hour)
+                .setDefaultEndTimeApplied(true)
                 .build()
         }
     }

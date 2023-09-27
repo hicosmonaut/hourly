@@ -24,13 +24,11 @@
 
 package hi.cosmonaut.hourly.fragment.home.vm
 
-import hi.cosmonaut.hourly.proto.UserPreferences
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface TimeFlowAddon {
-    fun startTime(): Flow<Pair<Int, Int>>
-    fun endTime(): Flow<Pair<Int, Int>>
+    val startTime: StateFlow<Pair<Int, Int>>
+    val endTime: StateFlow<Pair<Int, Int>>
     fun updateStartTime(hour: Int, minute: Int)
     fun updateEndTime(hour: Int, minute: Int)
 }

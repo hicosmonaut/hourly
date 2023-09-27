@@ -81,8 +81,8 @@ class MainActivity : AppCompatActivity() {
                             factory = HomeViewModelFactory(application)
                         )
 
-                        val startTime by homeViewModel.startTime().collectAsStateWithLifecycle(9 to 0)
-                        val endTime by homeViewModel.endTime().collectAsStateWithLifecycle(22 to 0)
+                        val startTime by homeViewModel.startTime.collectAsStateWithLifecycle()
+                        val endTime by homeViewModel.endTime.collectAsStateWithLifecycle()
 
                         Home.Screen(
                             startTime,
