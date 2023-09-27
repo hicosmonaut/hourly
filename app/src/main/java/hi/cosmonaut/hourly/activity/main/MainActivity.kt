@@ -28,7 +28,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
@@ -36,6 +41,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -60,46 +67,55 @@ class MainActivity : AppCompatActivity() {
             HourlyTheme(
                 darkTheme = false
             ) {
-                NavHost(
-                    navController = controller,
-                    startDestination = "splash"
-                ) {
-                    composable(
-                        route = "splash"
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            vertical = 16.dp
+                        ),
+                    color = MaterialTheme.colorScheme.background
+                ){
+                    NavHost(
+                        navController = controller,
+                        startDestination = "splash"
                     ) {
-                        Splash.Screen(
-                            navController = controller
-                        )
-                    }
-                    composable(
-                        route = "home"
-                    ) {
+                        composable(
+                            route = "splash"
+                        ) {
+                            Splash.Screen(
+                                navController = controller
+                            )
+                        }
+                        composable(
+                            route = "home"
+                        ) {
 
-                        BackHandler.Empty()
+                            BackHandler.Empty()
 
-                        val homeViewModel: HomeViewModel = viewModel(
-                            factory = HomeViewModelFactory(application)
-                        )
+                            val homeViewModel: HomeViewModel = viewModel(
+                                factory = HomeViewModelFactory(application)
+                            )
 
-                        val startTime by homeViewModel.startTime.collectAsStateWithLifecycle()
-                        val endTime by homeViewModel.endTime.collectAsStateWithLifecycle()
+                            val startTime by homeViewModel.startTime.collectAsStateWithLifecycle()
+                            val endTime by homeViewModel.endTime.collectAsStateWithLifecycle()
 
-                        Home.Screen(
-                            startTime,
-                            endTime,
-                            onStartTimeConfirmed = { hour, minute ->
-                                homeViewModel.updateStartTime(
-                                    hour,
-                                    minute
-                                )
-                            },
-                            onEndTimeConfirmed = { hour, minute ->
-                                homeViewModel.updateEndTime(
-                                    hour,
-                                    minute
-                                )
-                            }
-                        )
+                            Home.Screen(
+                                startTime,
+                                endTime,
+                                onStartTimeConfirmed = { hour, minute ->
+                                    homeViewModel.updateStartTime(
+                                        hour,
+                                        minute
+                                    )
+                                },
+                                onEndTimeConfirmed = { hour, minute ->
+                                    homeViewModel.updateEndTime(
+                                        hour,
+                                        minute
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
