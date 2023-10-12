@@ -206,8 +206,7 @@ object Home {
         Card(
             modifier = Modifier
                 .padding(
-                    vertical = 8.dp,
-                    horizontal = 16.dp
+                    vertical = 8.dp
                 )
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
