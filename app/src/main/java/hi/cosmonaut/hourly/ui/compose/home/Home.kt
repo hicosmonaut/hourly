@@ -29,20 +29,30 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -71,6 +81,7 @@ import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClick
 import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClick
 import hi.cosmonaut.hourly.picker.time.TimePicker
 import hi.cosmonaut.hourly.proto.UserPreferences
+import hi.cosmonaut.hourly.ui.compose.common.Common
 
 object Home {
 
@@ -127,18 +138,22 @@ object Home {
             modifier = Modifier.fillMaxWidth()
         ) {
 
-            NoticeCard(
+            Common.NoticeCard(
                 iconPainter = painterResource(id = R.drawable.icon_alert),
                 text = stringResource(id = R.string.text_notification_info),
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
             )
+
+            Common.VerticalSpacer(8.dp)
+
             TimeRangeCard(
                 startTime = startTime,
                 endTime = endTime,
                 onStartTimeClick = { startTimePickerOpenState.markAsOpened() },
                 onEndTimeClick = { endTimePickerOpenState.markAsOpened() },
             )
+
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
@@ -158,42 +173,6 @@ object Home {
     }
 
     @Composable
-    fun NoticeCard(
-        iconPainter: Painter,
-        text: String,
-        containerColor: Color,
-        contentColor: Color,
-    ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = containerColor
-            )
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = iconPainter,
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(
-                        color = contentColor
-                    )
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = text,
-                    color = contentColor
-                )
-            }
-        }
-    }
-
-    @Composable
     fun TimeRangeCard(
         startTime: Pair<Int, Int>,
         endTime: Pair<Int, Int>,
@@ -206,35 +185,51 @@ object Home {
         Card(
             modifier = Modifier
                 .padding(
-                    vertical = 8.dp
+                    horizontal = 16.dp
                 )
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
             )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        vertical = 16.dp
+                        vertical = 8.dp,
                     )
             ) {
-                Text(
-                    modifier = Modifier.padding(
-                        horizontal = 16.dp
-                    ),
-                    text = stringResource(
-                        id = R.string.label_set_time
-                    ),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal
-                )
-
                 Spacer(modifier = Modifier.height(8.dp))
 
-                TimeOutlinedTextField(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 8.dp
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = Modifier,
+                        text = stringResource(
+                            id = R.string.label_set_time
+                        ),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    /*Icon(
+                        modifier = Modifier.size(24.dp),
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )*/
+                }
+
+                Common.TimeOutlinedTextField(
                     value = stringResource(
                         R.string.label_HH_mm,
                         startTime.first,
@@ -246,7 +241,7 @@ object Home {
                     onClick = onStartTimeClick
                 )
 
-                TimeOutlinedTextField(
+                Common.TimeOutlinedTextField(
                     value = stringResource(
                         R.string.label_HH_mm,
                         endTime.first,
@@ -258,94 +253,29 @@ object Home {
                     onClick = onEndTimeClick
                 )
 
+                Common.VerticalSpacer(4.dp)
+
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 16.dp
+                        ),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(
-                        modifier = Modifier
-                            .weight(0.5f)
-                            .padding(
-                                horizontal = 8.dp
-                            ),
+                    Common.DiscardButton(
                         onClick = OnCancelAllClick(context)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.label_cancel_all),
-                        )
-                    }
-                    Spacer(
-                        modifier = Modifier.width(16.dp)
                     )
-                    TextButton(
-                        modifier = Modifier
-                            .weight(0.5f)
-                            .padding(
-                                horizontal = 8.dp
-                            ),
+                    Common.HorizontalSpacer(16.dp)
+                    Common.ApplyButton(
                         onClick = OnApplyClick(context, startTime, endTime)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.label_apply),
-                        )
-                    }
+                    )
                 }
+
+                Common.VerticalSpacer(8.dp)
+
             }
         }
     }
 
-
-    @Composable
-    fun TimeOutlinedTextField(
-        value: String,
-        onValueChange: (String) -> Unit = {},
-        enabled: Boolean = false,
-        @StringRes labelResId: Int,
-        @DrawableRes leadingIconResId: Int,
-        @DrawableRes trailingIconResId: Int,
-        colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-            disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        onClick: () -> Unit,
-    ) {
-        OutlinedTextField(
-            modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 16.dp)
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    onClick()
-                },
-            enabled = enabled,
-            label = {
-                Text(
-                    text = stringResource(id = labelResId),
-                )
-            },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = leadingIconResId),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                )
-            },
-            trailingIcon = {
-                Image(
-                    painter = painterResource(id = trailingIconResId),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                )
-            },
-            colors = colors,
-            value = value,
-            onValueChange = onValueChange
-        )
-    }
 }

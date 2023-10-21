@@ -20,6 +20,7 @@
     <string name="label_about">About</string>
     <string name="label_about_underline">&lt;u>About&lt;/u></string>
     <string name="label_cancel_all">Cancel all</string>
+    <string name="label_discard">Discard</string>
     <string name="label_HH_mm" translatable="false">%1$02d:%2$02d</string>
     <string name="label_set_time">Time range</string>
     <string name="text_notification_info">You will be notified every hour.</string>

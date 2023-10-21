@@ -59,7 +59,6 @@ import kotlinx.coroutines.delay
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var i = 1
         setContent {
 
             val controller = rememberNavController()
