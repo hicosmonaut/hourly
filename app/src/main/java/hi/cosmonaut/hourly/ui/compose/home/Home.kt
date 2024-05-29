@@ -25,6 +25,7 @@
 package hi.cosmonaut.hourly.ui.compose.home
 
 import android.app.Application
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,6 +73,7 @@ import hi.cosmonaut.hourly.tool.back.BackHandler
 import hi.cosmonaut.hourly.ui.compose.common.Common
 import hi.cosmonaut.hourly.ui.compose.home.Home.Screen
 import hi.cosmonaut.hourly.ui.compose.home.Home.TimeRangeCard
+import hi.cosmonaut.hourly.ui.theme.HourlyTheme
 
 object Home {
 
@@ -125,8 +127,15 @@ object Home {
         }
 
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Image(
+                modifier = Modifier.padding(vertical = 8.dp),
+                painter = painterResource(id = R.drawable.icon_logo),
+                contentDescription = ""
+            )
 
             Common.NoticeCard(
                 iconPainter = painterResource(id = R.drawable.icon_alert),
@@ -305,25 +314,16 @@ fun NavController.navigateToHome(){
     this.navigate("app/home")
 }
 
-@Preview
-@Composable
-private fun TimeRangeCardPreview() {
-    TimeRangeCard(
-        9 to 0,
-        22 to 0,
-        {},
-        {}
-    )
-}
-
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun ScreenPreview() {
-    Screen(
-        9 to 0,
-        22 to 0,
-        onStartTimeConfirmed = { _, _ -> },
-        onEndTimeConfirmed = { _, _ -> }
-    )
+    HourlyTheme {
+        Screen(
+            9 to 0,
+            22 to 0,
+            onStartTimeConfirmed = { _, _ -> },
+            onEndTimeConfirmed = { _, _ -> }
+        )
+    }
 }
 
