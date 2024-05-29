@@ -39,10 +39,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import hi.cosmonaut.hourly.R
+import hi.cosmonaut.hourly.ui.compose.splash.Splash.Screen
 import kotlinx.coroutines.delay
 
 object Splash {
@@ -50,7 +55,7 @@ object Splash {
     @OptIn(ExperimentalAnimationGraphicsApi::class)
     @Composable
     fun Screen(
-        navController: NavHostController
+        onNavigateNext: () -> Unit,
     ){
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -76,11 +81,24 @@ object Splash {
                 atEnd = true
 
                 delay(1500)
-                navController.navigate(
-                    "home"
-                )
+                onNavigateNext()
             }
         }
     }
 
+}
+
+fun NavController.navigateToSplash(){
+    this.navigate("app/splash")
+}
+
+@Composable
+fun NavGraphBuilder.splashScreen(
+    onNavigateNext: () -> Unit,
+){
+    composable("app/splash") {
+        Screen(
+            onNavigateNext = onNavigateNext
+        )
+    }
 }

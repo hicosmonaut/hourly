@@ -50,6 +50,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
 import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
+import hi.cosmonaut.hourly.navigation.mainGraph
 import hi.cosmonaut.hourly.tool.back.BackHandler
 import hi.cosmonaut.hourly.ui.compose.home.Home
 import hi.cosmonaut.hourly.ui.compose.splash.Splash
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
 
-            val controller = rememberNavController()
+            val navController = rememberNavController()
 
             HourlyTheme(
                 darkTheme = false
@@ -75,47 +76,9 @@ class MainActivity : AppCompatActivity() {
                     color = MaterialTheme.colorScheme.background
                 ){
                     NavHost(
-                        navController = controller,
-                        startDestination = "splash"
-                    ) {
-                        composable(
-                            route = "splash"
-                        ) {
-                            Splash.Screen(
-                                navController = controller
-                            )
-                        }
-                        composable(
-                            route = "home"
-                        ) {
-
-                            BackHandler.Empty()
-
-                            val homeViewModel: HomeViewModel = viewModel(
-                                factory = HomeViewModelFactory(application)
-                            )
-
-                            val startTime by homeViewModel.startTime.collectAsStateWithLifecycle()
-                            val endTime by homeViewModel.endTime.collectAsStateWithLifecycle()
-
-                            Home.Screen(
-                                startTime,
-                                endTime,
-                                onStartTimeConfirmed = { hour, minute ->
-                                    homeViewModel.updateStartTime(
-                                        hour,
-                                        minute
-                                    )
-                                },
-                                onEndTimeConfirmed = { hour, minute ->
-                                    homeViewModel.updateEndTime(
-                                        hour,
-                                        minute
-                                    )
-                                }
-                            )
-                        }
-                    }
+                        navController = navController,
+                        graph = navController.mainGraph("app/splash")
+                    )
                 }
             }
         }
