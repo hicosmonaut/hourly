@@ -7,6 +7,8 @@ I use this application to know when the new hour is beginning, something like Ca
 # Hourly (In progress)
 Application for sending hourly notification/signal/chime to notify user when the new hour is beginning
 
+![Alt Text](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWlzaHczYnVqbnY3ZnI2NXJ5Y3RxMG9naGRoNDZ6dGFoaW95Z3N5cSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8MFElCz7tv1JMH3MHc/giphy.gif)
+
 ## Highlights
  - Jetpack Compose
  - Proto DataStore
