@@ -22,53 +22,79 @@
  *  SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.vm
+package hi.cosmonaut.hourly.ui.compose.home.vm
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import hi.cosmonaut.hourly.fragment.home.repository.TimeRepository
+import hi.cosmonaut.hourly.ui.compose.home.schedule.AlarmSchedule
+import hi.cosmonaut.hourly.ui.compose.home.repository.AlarmRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
     app: Application,
-    private val timeRepository: TimeRepository,
-) : AndroidViewModel(app), TimeFlowAddon {
+    private val alarmRepository: AlarmRepository,
+    private val alarmSchedule: AlarmSchedule
+) : AndroidViewModel(app) {
 
     private val _startTime: MutableStateFlow<Pair<Int, Int>> = MutableStateFlow(9 to 0)//fixme: pass default start time value
-    override val startTime: StateFlow<Pair<Int, Int>> = _startTime.asStateFlow()
+    val startTime: StateFlow<Pair<Int, Int>> = _startTime.asStateFlow()
 
     private val _endTime: MutableStateFlow<Pair<Int, Int>> = MutableStateFlow(22 to 0)//fixme: pass default end time value
-    override val endTime: StateFlow<Pair<Int, Int>> = _endTime.asStateFlow()
+    val endTime: StateFlow<Pair<Int, Int>> = _endTime.asStateFlow()
+
+    val alarmsEnabledFlow: StateFlow<Boolean> = alarmRepository.alarmsEnabled().stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     init {
         viewModelScope.launch {
             launch {
-                timeRepository.startTime().collect {
+                alarmRepository.startTime().collect {
                     _startTime.emit(it)
                 }
             }
 
             launch {
-                timeRepository.endTime().collect {
+                alarmRepository.endTime().collect {
                     _endTime.emit(it)
                 }
             }
         }
     }
 
-    override fun updateStartTime(hour: Int, minute: Int) {
+    fun updateStartTime(hour: Int, minute: Int) {
         viewModelScope.launch {
-            timeRepository.updateStartTime(hour, minute)
+            alarmRepository.updateStartTime(hour, minute)
+            updateSchedule()
         }
     }
 
-    override fun updateEndTime(hour: Int, minute: Int) {
+    fun updateEndTime(hour: Int, minute: Int) {
         viewModelScope.launch {
-            timeRepository.updateEndTime(hour, minute)
+            alarmRepository.updateEndTime(hour, minute)
+            updateSchedule()
+        }
+    }
+
+    fun updateAlarmsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            alarmRepository.updateAlarmsEnabled(enabled)
+            updateSchedule()
+        }
+    }
+
+    private fun updateSchedule(){
+        if(alarmsEnabledFlow.value){
+            alarmSchedule.apply(
+                startTime = startTime.value,
+                endTime = endTime.value
+            )
+        } else {
+            alarmSchedule.cancelAll()
         }
     }
 

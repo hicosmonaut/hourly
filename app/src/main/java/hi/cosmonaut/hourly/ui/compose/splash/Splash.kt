@@ -92,7 +92,6 @@ fun NavController.navigateToSplash(){
     this.navigate("app/splash")
 }
 
-@Composable
 fun NavGraphBuilder.splashScreen(
     onNavigateNext: () -> Unit,
 ){

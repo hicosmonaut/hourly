@@ -24,10 +24,13 @@
 
 package hi.cosmonaut.hourly.ui.compose.home
 
+import android.Manifest
 import android.app.Application
+import android.util.Log
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,44 +39,62 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import hi.cosmonaut.hourly.R
-import hi.cosmonaut.hourly.fragment.home.listener.OnAboutClick
-import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClick
-import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClick
-import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModel
-import hi.cosmonaut.hourly.fragment.home.vm.HomeViewModelFactory
+import hi.cosmonaut.hourly.ui.compose.home.listener.OnAboutClick
+import hi.cosmonaut.hourly.ui.compose.home.vm.HomeViewModel
+import hi.cosmonaut.hourly.ui.compose.home.vm.HomeViewModelFactory
 import hi.cosmonaut.hourly.picker.time.TimePicker
 import hi.cosmonaut.hourly.tool.back.BackHandler
 import hi.cosmonaut.hourly.ui.compose.common.Common
+import hi.cosmonaut.hourly.ui.compose.common.Common.TimeColumn
 import hi.cosmonaut.hourly.ui.compose.home.Home.Screen
-import hi.cosmonaut.hourly.ui.compose.home.Home.TimeRangeCard
 import hi.cosmonaut.hourly.ui.theme.HourlyTheme
+import kotlinx.coroutines.launch
 
 object Home {
 
@@ -82,12 +103,16 @@ object Home {
     fun Screen(
         startTime: Pair<Int, Int>,
         endTime: Pair<Int, Int>,
+        alarmsEnabled: Boolean,
+        permissionGranted: Boolean,
         startTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(),
         endTimePickerOpenState: TimePicker.DialogState = TimePicker.rememberDialogState(),
         onStartTimeConfirmed: (Int, Int) -> Unit,
         onEndTimeConfirmed: (Int, Int) -> Unit,
+        onEnableAlarmsClicked: (Boolean) -> Unit = {},
+        onGrantClicked: () -> Unit = {},
     ) {
-
+        val alarmsEnabledCondition = alarmsEnabled && permissionGranted
         val context = LocalContext.current.applicationContext
 
         val startTimePickerState = rememberTimePickerState(
@@ -122,7 +147,7 @@ object Home {
                     onEndTimeConfirmed(endTimePickerState.hour, endTimePickerState.minute)
                     endTimePickerOpenState.markAsClosed()
                 },
-                onCancel = { endTimePickerOpenState.markAsClosed()}
+                onCancel = { endTimePickerOpenState.markAsClosed() }
             )
         }
 
@@ -130,29 +155,32 @@ object Home {
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Image(
                 modifier = Modifier.padding(vertical = 8.dp),
                 painter = painterResource(id = R.drawable.icon_logo),
                 contentDescription = ""
             )
 
-            Common.NoticeCard(
-                iconPainter = painterResource(id = R.drawable.icon_alert),
-                text = stringResource(id = R.string.text_notification_info),
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-            )
-
-            Common.VerticalSpacer(8.dp)
+            if (!permissionGranted) {
+                Common.PermissionCard(
+                    imageVector = Icons.Filled.Warning,
+                    text = stringResource(id = R.string.text_grant_permission_notification),
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.error,
+                    onGrantClicked = onGrantClicked
+                )
+                Common.VerticalSpacer(16.dp)
+            }
 
             TimeRangeCard(
+                alarmsEnabled = alarmsEnabledCondition,
+                permissionGranted = permissionGranted,
                 startTime = startTime,
                 endTime = endTime,
-                onStartTimeClick = { startTimePickerOpenState.markAsOpened() },
-                onEndTimeClick = { endTimePickerOpenState.markAsOpened() },
+                onStartTimeClick = { if (alarmsEnabledCondition) startTimePickerOpenState.markAsOpened() },
+                onEndTimeClick = { if (alarmsEnabledCondition) endTimePickerOpenState.markAsOpened() },
+                onEnableAlarmsClick = { if (permissionGranted) onEnableAlarmsClicked(it) }
             )
-
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
@@ -165,7 +193,6 @@ object Home {
                         .alpha(0.5f),
                     text = stringResource(id = R.string.label_about),
                     style = TextStyle(textDecoration = TextDecoration.Underline)
-
                 )
             }
         }
@@ -173,105 +200,131 @@ object Home {
 
     @Composable
     fun TimeRangeCard(
+        alarmsEnabled: Boolean,
+        permissionGranted: Boolean,
         startTime: Pair<Int, Int>,
         endTime: Pair<Int, Int>,
         onStartTimeClick: () -> Unit,
         onEndTimeClick: () -> Unit,
+        onEnableAlarmsClick: (Boolean) -> Unit = {},
     ) {
-
-        val context = LocalContext.current.applicationContext
+        var expanded by rememberSaveable { mutableStateOf(false) }
+        val alpha = if (alarmsEnabled) 1f else 0.5f
 
         Card(
             modifier = Modifier
                 .padding(
                     horizontal = 16.dp
                 )
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+                .fillMaxWidth()
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 300,
+                    )
+                ),
+            shape = MaterialTheme.shapes.extraLarge,
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
             )
+
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(
-                        vertical = 8.dp,
-                    )
+                    .padding(all = 24.dp)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
-
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp
-                        ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        modifier = Modifier,
-                        text = stringResource(
-                            id = R.string.label_set_time
-                        ),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    TimeColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .alpha(alpha),
+                        titleResId = R.string.label_start_time,
+                        hours = startTime.first,
+                        minutes = startTime.second,
                     )
-                    /*Icon(
-                        modifier = Modifier.size(24.dp),
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = "",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )*/
+                    TimeColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .alpha(alpha),
+                        titleResId = R.string.label_end_time,
+                        hours = endTime.first,
+                        minutes = endTime.second,
+                    )
+                    IconButton(
+                        modifier = Modifier
+                            .alpha(0.85f),
+                        onClick = { expanded = !expanded }
+                    ) {
+                        Icon(
+                            imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                            contentDescription = null
+                        )
+                    }
                 }
 
-                Common.TimeOutlinedTextField(
-                    value = stringResource(
-                        R.string.label_HH_mm,
-                        startTime.first,
-                        startTime.second
-                    ),
-                    labelResId = R.string.label_start_time,
-                    leadingIconResId = R.drawable.icon_sun,
-                    trailingIconResId = R.drawable.icon_time,
-                    onClick = onStartTimeClick
-                )
+                if (expanded) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(
+                                R.string.label_enable_alarms
+                            ),
+                            style = TextStyle(
+                                fontSize = 14.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                        Switch(
+                            checked = alarmsEnabled && permissionGranted,
+                            onCheckedChange = { onEnableAlarmsClick(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                uncheckedBorderColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Common.TimeOutlinedTextField(
-                    value = stringResource(
-                        R.string.label_HH_mm,
-                        endTime.first,
-                        endTime.second
-                    ),
-                    labelResId = R.string.label_end_time,
-                    leadingIconResId = R.drawable.icon_moon,
-                    trailingIconResId = R.drawable.icon_time,
-                    onClick = onEndTimeClick
-                )
-
-                Common.VerticalSpacer(4.dp)
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 16.dp
+                    Common.TimeOutlinedTextField(
+                        modifier = Modifier.alpha(alpha),
+                        value = stringResource(
+                            R.string.label_HH_mm,
+                            startTime.first,
+                            startTime.second
                         ),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Common.DiscardButton(
-                        onClick = OnCancelAllClick(context)
+                        labelResId = R.string.label_start_time,
+                        leadingIconResId = R.drawable.icon_sun,
+                        trailingIconResId = R.drawable.icon_time,
+                        onClick = onStartTimeClick
                     )
-                    Common.HorizontalSpacer(16.dp)
-                    Common.ApplyButton(
-                        onClick = OnApplyClick(context, startTime, endTime)
-                    )
-                }
 
-                Common.VerticalSpacer(8.dp)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Common.TimeOutlinedTextField(
+                        modifier = Modifier.alpha(alpha),
+                        value = stringResource(
+                            R.string.label_HH_mm,
+                            endTime.first,
+                            endTime.second
+                        ),
+                        labelResId = R.string.label_end_time,
+                        leadingIconResId = R.drawable.icon_moon,
+                        trailingIconResId = R.drawable.icon_time,
+                        onClick = onEndTimeClick
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                }
 
             }
         }
@@ -279,9 +332,12 @@ object Home {
 
 }
 
-fun NavGraphBuilder.homeScreen(){
-    composable("app/home"){
+
+@OptIn(ExperimentalPermissionsApi::class)
+fun NavGraphBuilder.homeScreen() {
+    composable("app/home") {
         val context = LocalContext.current.applicationContext
+        val lifecycleOwner = LocalLifecycleOwner.current
 
         BackHandler.Empty()
 
@@ -289,12 +345,27 @@ fun NavGraphBuilder.homeScreen(){
             factory = HomeViewModelFactory(context as Application)
         )
 
+        val postPermissionState = rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
         val startTime by homeViewModel.startTime.collectAsStateWithLifecycle()
         val endTime by homeViewModel.endTime.collectAsStateWithLifecycle()
+        val alarmsEnabled by homeViewModel.alarmsEnabledFlow.collectAsStateWithLifecycle()
+        val permissionGranted = postPermissionState.status.isGranted
+
+        LaunchedEffect(Unit) {
+            lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+                homeViewModel.updateAlarmsEnabled(alarmsEnabled && permissionGranted)
+                Log.d(
+                    "Home",
+                    "homeScreen: alarmsEnabled: $alarmsEnabled, permissionGranted: $permissionGranted"
+                )
+            }
+        }
 
         Screen(
-            startTime,
-            endTime,
+            startTime = startTime,
+            endTime = endTime,
+            alarmsEnabled = alarmsEnabled,
+            permissionGranted = permissionGranted,
             onStartTimeConfirmed = { hour, minute ->
                 homeViewModel.updateStartTime(
                     hour,
@@ -306,11 +377,14 @@ fun NavGraphBuilder.homeScreen(){
                     hour,
                     minute
                 )
-            }
-        )    }
+            },
+            onEnableAlarmsClicked = { homeViewModel.updateAlarmsEnabled(it) },
+            onGrantClicked = { postPermissionState.launchPermissionRequest() }
+        )
+    }
 }
 
-fun NavController.navigateToHome(){
+fun NavController.navigateToHome() {
     this.navigate("app/home")
 }
 
@@ -321,8 +395,11 @@ private fun ScreenPreview() {
         Screen(
             9 to 0,
             22 to 0,
+            false,
+            false,
             onStartTimeConfirmed = { _, _ -> },
-            onEndTimeConfirmed = { _, _ -> }
+            onEndTimeConfirmed = { _, _ -> },
+            onEnableAlarmsClicked = { _ -> }
         )
     }
 }

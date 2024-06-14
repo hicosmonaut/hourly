@@ -29,10 +29,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.legacy.content.WakefulBroadcastReceiver
 import hi.cosmonaut.hourly.R
 import hi.cosmonaut.hourly.activity.main.MainActivityIntent
@@ -69,7 +71,7 @@ class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
             -1
         )
 
-        val notificationManagerCompat = NotificationManagerCompat.from(context)
+        val notificationManagerCompat = NotificationManagerCompat.from(context.applicationContext)
         notificationManagerCompat.cancelAll()
 
         val channelData = "channelData"
@@ -130,11 +132,22 @@ class FiredAlarmBroadcastReceiver : WakefulBroadcastReceiver() {
                         context.packageName,
                         R.layout.view_heads_up_drink_alarm
                     ).apply {
+                        val color = ContextCompat.getColor(
+                            context,
+                            when (context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+                                Configuration.UI_MODE_NIGHT_YES -> android.R.color.white
+                                else -> android.R.color.black
+                            }
+                        )
+
                         this.setTextViewText(
                             R.id.viewNotificationDrinkAlarmTvDataDescription,
                             content
                         )
                         this.setTextViewText(R.id.viewNotificationDrinkAlarmTvDataTitle, title)
+
+                        this.setTextColor(R.id.viewNotificationDrinkAlarmTvDataTitle, color)
+                        this.setTextColor(R.id.viewNotificationDrinkAlarmTvDataDescription, color)
                     }
                 )
 

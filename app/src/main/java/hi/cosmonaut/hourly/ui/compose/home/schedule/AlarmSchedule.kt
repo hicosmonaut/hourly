@@ -22,35 +22,49 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.listener
+package hi.cosmonaut.hourly.ui.compose.home.schedule
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import hi.cosmonaut.hourly.intent.view.ToViewIntentMapping
+import hi.cosmonaut.hourly.alarm.calendar.TimeArrayToNextCalendarMapping
+import hi.cosmonaut.hourly.alarm.clock.NextAlarmClock
+import hi.cosmonaut.hourly.intent.pending.ToFiredAlarmPendingIntentMapping
 import hi.cosmonaut.hourly.tool.mapping.Mapping
 
-class OnAboutClick(
+class AlarmSchedule(
     private val context: Context,
-    private val linkStringResId: Int,
-    private val toViewIntentMapping: Mapping<Int, Intent>
-) : () -> Unit {
+    private val toFiredAlarmPendingIntentMapping: Mapping<Context, PendingIntent>,
+    private val toNextCalendarMapping: TimeArrayToNextCalendarMapping,
+    private val nextAlarmClock: NextAlarmClock,
+) {
 
     constructor(
         context: Context,
-        linkStringResId: Int,
-    ): this(
+    ) : this(
         context,
-        linkStringResId,
-        ToViewIntentMapping(
-            context
-        )
+        ToFiredAlarmPendingIntentMapping(),
+        TimeArrayToNextCalendarMapping(),
+        NextAlarmClock(context)
     )
 
-    override fun invoke() {
-        context.startActivity(
-            toViewIntentMapping.perform(
-                linkStringResId
+    fun cancelAll() {
+        context.let {
+            val alarmManager = it.applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val firedAlarmPendingIntent = toFiredAlarmPendingIntentMapping.perform(it)
+
+            alarmManager.cancel(
+                firedAlarmPendingIntent
             )
+        }
+    }
+
+    fun apply(startTime: Pair<Int, Int>, endTime: Pair<Int, Int>){
+        nextAlarmClock.schedule(
+            toNextCalendarMapping.perform(
+                arrayOf(startTime, endTime)
+            ).timeInMillis
         )
     }
+
 }

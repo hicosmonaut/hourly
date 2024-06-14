@@ -10,4 +10,5 @@ message UserPreferences {
   int32 startMinutes = 4;
   int32 endHours = 5;
   int32 endMinutes = 6;
+  bool alarmsEnabled = 7;
 }

@@ -22,12 +22,13 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.vm
+package hi.cosmonaut.hourly.ui.compose.home.vm
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import hi.cosmonaut.hourly.fragment.home.repository.StoredTimeRepository
+import hi.cosmonaut.hourly.ui.compose.home.schedule.AlarmSchedule
+import hi.cosmonaut.hourly.ui.compose.home.repository.StoredAlarmRepository
 import hi.cosmonaut.hourly.tool.extension.ContextExtension.userDataStore
 
 class HomeViewModelFactory(
@@ -38,9 +39,10 @@ class HomeViewModelFactory(
             val dataStore = app.userDataStore
             HomeViewModel(
                 app,
-                StoredTimeRepository(
+                StoredAlarmRepository(
                     dataStore
-                )
+                ),
+                AlarmSchedule(app),
             ) as T
         } else {
             throw IllegalArgumentException("Unknown ViewModel class")

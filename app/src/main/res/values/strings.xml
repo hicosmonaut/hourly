@@ -18,12 +18,15 @@
     <string name="label_apply">Apply</string>
     <string name="label_reset">Reset</string>
     <string name="label_about">About</string>
+    <string name="label_grant">Grant</string>
     <string name="label_about_underline">&lt;u>About&lt;/u></string>
     <string name="label_cancel_all">Cancel all</string>
     <string name="label_discard">Discard</string>
     <string name="label_HH_mm" translatable="false">%1$02d:%2$02d</string>
+    <string name="label_enable_alarms">Enable alarms</string>
     <string name="label_set_time">Time range</string>
     <string name="text_notification_info">You will be notified every hour.</string>
+    <string name="text_grant_permission_notification">Grant notification permission to receive alarms.</string>
     <string name="label_error_end_less_then_start">\'End time\' is less then \'Start time\'</string>
     <string name="desc_splash_animation">Splash animation</string>
     <string name="label_dismiss">Dismiss</string>

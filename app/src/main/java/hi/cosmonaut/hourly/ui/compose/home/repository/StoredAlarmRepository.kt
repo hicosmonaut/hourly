@@ -22,17 +22,17 @@
  *  SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.repository
+package hi.cosmonaut.hourly.ui.compose.home.repository
 
 import androidx.datastore.core.DataStore
 import hi.cosmonaut.hourly.proto.UserPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class StoredTimeRepository(
+class StoredAlarmRepository(
     private val store: DataStore<UserPreferences>,
     private val defaultTimeArray: Array<Pair<Int, Int>>
-): TimeRepository {
+): AlarmRepository {
 
     constructor(
         store: DataStore<UserPreferences>
@@ -78,6 +78,16 @@ class StoredTimeRepository(
                 .setEndMinutes(minute)
                 .setEndHours(hour)
                 .setDefaultEndTimeApplied(true)
+                .build()
+        }
+    }
+
+    override fun alarmsEnabled(): Flow<Boolean> = store.data.map { it.alarmsEnabled }
+
+    override suspend fun updateAlarmsEnabled(enabled: Boolean) {
+        store.updateData {
+            it.toBuilder()
+                .setAlarmsEnabled(enabled)
                 .build()
         }
     }

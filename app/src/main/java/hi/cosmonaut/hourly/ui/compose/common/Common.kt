@@ -29,6 +29,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +41,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,18 +59,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import hi.cosmonaut.hourly.R
-import hi.cosmonaut.hourly.fragment.home.listener.OnApplyClick
-import hi.cosmonaut.hourly.fragment.home.listener.OnCancelAllClick
 
 object Common {
     @Composable
     fun NoticeCard(
-        iconPainter: Painter,
+        imageVector: ImageVector,
         text: String,
         containerColor: Color,
         contentColor: Color,
@@ -77,28 +82,100 @@ object Common {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(12.dp),
+            shape = MaterialTheme.shapes.extraLarge,
             colors = CardDefaults.cardColors(
                 containerColor = containerColor
             )
         ) {
             Row(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = iconPainter,
+                    imageVector = imageVector,
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(
                         color = contentColor
                     )
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = text,
                     color = contentColor
                 )
             }
+        }
+    }
+
+    @Composable
+    fun PermissionCard(
+        imageVector: ImageVector,
+        text: String,
+        containerColor: Color,
+        contentColor: Color,
+        onGrantClicked: () -> Unit
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(
+                containerColor = containerColor
+            )
+        ) {
+            Row(
+                modifier = Modifier.padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    imageVector = imageVector,
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(
+                        color = contentColor
+                    )
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = text,
+                    color = contentColor,
+                    style = TextStyle(
+                        fontSize = 14.sp
+                    )
+                )
+                TextButton(onClick = onGrantClicked) {
+                    Text(
+                        text = stringResource(id = R.string.label_grant),
+                        color = contentColor
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun TimeColumn(modifier: Modifier = Modifier, titleResId: Int, hours: Int, minutes: Int) {
+        Column(
+            modifier = modifier,
+        ) {
+            Text(
+                stringResource(id = titleResId),
+                style = TextStyle(
+                    fontSize = 14.sp
+                )
+            )
+            Text(
+                stringResource(
+                    id = R.string.label_HH_mm,
+                    hours,
+                    minutes
+                ),
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 36.sp
+                )
+            )
         }
     }
 
@@ -112,9 +189,9 @@ object Common {
         Spacer(modifier = Modifier.width(value))
     }
 
-
     @Composable
     fun TimeOutlinedTextField(
+        modifier: Modifier = Modifier,
         value: String,
         onValueChange: (String) -> Unit = {},
         enabled: Boolean = false,
@@ -129,8 +206,7 @@ object Common {
         onClick: () -> Unit,
     ) {
         OutlinedTextField(
-            modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 16.dp)
+            modifier = modifier
                 .fillMaxWidth()
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -149,7 +225,7 @@ object Common {
                     painter = painterResource(id = leadingIconResId),
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                 )
             },
@@ -158,7 +234,7 @@ object Common {
                     painter = painterResource(id = trailingIconResId),
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                 )
             },
@@ -201,4 +277,17 @@ object Common {
         }
     }
 
+
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PermissionCardPreview() {
+    Common.PermissionCard(
+        imageVector = Icons.Filled.Warning,
+        text = stringResource(id = R.string.text_grant_permission_notification),
+        containerColor = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.error,
+        onGrantClicked = {}
+    )
 }

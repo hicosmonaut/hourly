@@ -22,13 +22,15 @@
  *  SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.fragment.home.repository
+package hi.cosmonaut.hourly.ui.compose.home.repository
 
 import kotlinx.coroutines.flow.Flow
 
-interface TimeRepository {
+interface AlarmRepository {
+    fun alarmsEnabled(): Flow<Boolean>
     fun startTime(): Flow<Pair<Int, Int>>
     fun endTime(): Flow<Pair<Int, Int>>
     suspend fun updateStartTime(hour: Int, minute: Int)
     suspend fun updateEndTime(hour: Int, minute: Int)
+    suspend fun updateAlarmsEnabled(enabled: Boolean)
 }

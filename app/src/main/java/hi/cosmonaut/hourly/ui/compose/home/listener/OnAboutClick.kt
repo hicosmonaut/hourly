@@ -22,11 +22,35 @@
  * SOFTWARE.
  */
 
-package hi.cosmonaut.hourly.permission
+package hi.cosmonaut.hourly.ui.compose.home.listener
 
+import android.content.Context
 import android.content.Intent
+import hi.cosmonaut.hourly.intent.view.ToViewIntentMapping
+import hi.cosmonaut.hourly.tool.mapping.Mapping
 
-interface Permission {
-    fun intent(): Intent
-    fun granted(): Boolean
+class OnAboutClick(
+    private val context: Context,
+    private val linkStringResId: Int,
+    private val toViewIntentMapping: Mapping<Int, Intent>
+) : () -> Unit {
+
+    constructor(
+        context: Context,
+        linkStringResId: Int,
+    ): this(
+        context,
+        linkStringResId,
+        ToViewIntentMapping(
+            context
+        )
+    )
+
+    override fun invoke() {
+        context.startActivity(
+            toViewIntentMapping.perform(
+                linkStringResId
+            )
+        )
+    }
 }
